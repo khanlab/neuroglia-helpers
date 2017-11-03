@@ -22,9 +22,11 @@ SINGULARITY_OPTS=<options for singularity exec>
 
 
 * neuroglia <command to run>
+
 Wrapper for singularity exec. 
 
 * neurogliaBatch <script/exec-name> <subjlist> <opt args>
+  
 Wrapper to submit jobs on graham. Will loop over subjlist and submit jobs (8core,32G,24h) for each as:
 neuroglia <script/exec-name> <opt args> <subj i>
 

@@ -1,6 +1,4 @@
 # neuroglia-helpers
-Helper and wrapper scripts for using neuroglia locally and on compute canada
-# neuroglia-helpers
 
 Helper & wrapper scripts for using the neuroglia (and neuroglia-vasst-dev) singularity image locally and remotely on graham (compute canada)
 

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+
+remote_user=$1
+rrg_id=6007967
+
+if [ "$#" -lt 1 ]
+then
+ echo "Sets up local /project folder mirroring absolute path on graham with sshfs"
+ echo "  Usage: $0 <graham username>"
+ exit 0
+fi
+
+
+#local set-up 
+if [ ! -e /project ]
+then
+mkdir -p /project ~/graham
+else
+echo "/project already exists on local"
+fi
+
+cmd="if [ ! -e /home/${remote_user}/rrg ]; then ln -s /project/${rrg_id} /home/${remote_user}/rrg; else echo link already exists on remote;  fi"
+ ssh $remote_user@graham.sharcnet.ca $cmd
+
+if [ ! -e /project/${rrg_id} ]
+then
+echo ln -s ~/graham/rrg /project/${rrg_id}
+ln -s ~/graham/rrg /project/${rrg_id}
+else
+echo "link to rrg already exists on local"
+fi
+
+
+
+echo sshfs -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,follow_symlinks $remote_user@graham.sharcnet.ca:/home/$remote_user ~/graham
+

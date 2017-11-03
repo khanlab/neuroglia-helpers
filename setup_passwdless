@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]
+then
+  echo "Set-up passwordless ssh to remote host"
+  echo "Usage: <remote username>  <remote hostname>"
+  exit 0
+fi
+
+user=$1
+host=$2
+
+rsa=~/.ssh/id_rsa_$host
+echo "Hit enter three times (default key, no passphrase, no passphrase confirm):"
+ssh-keygen -t rsa -f $rsa
+
+
+cat $rsa.pub | ssh ${user}@${host} "mkdir ~/.ssh; cat >> ~/.ssh/authorized_keys"
+

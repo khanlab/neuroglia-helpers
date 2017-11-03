@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -n "$SINGULARITY_IMG" ]
+then
+	echo "Using env: $SINGULARITY_IMG"
+else
+	echo "SINGULARITY_IMG not defined! exiting..."
+	exit -1
+fi
+
+if [ -n "$SINGULARITY_OPTS" ]
+then
+	echo "Using opts: $SINGULARITY_OPTS"
+else
+	echo "Warning: SINGULARITY_OPTS not defined!"
+fi
+
+
+
+
+
+singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@

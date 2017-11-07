@@ -21,13 +21,44 @@ SINGULARITY_OPTS=<options for singularity exec>
 
 
 
-* neuroglia <command to run>
+* neuroglia
 
 Wrapper for singularity exec. 
 
-* neurogliaBatch <script/exec-name> <subjlist> <opt args>
-  
-Wrapper to submit jobs on graham. Will loop over subjlist and submit jobs (8core,32G,24h) for each as:
-neuroglia <script/exec-name> <opt args> <subj i>
+* neurogliaArray 
+
+```
+==========================================================================
+Interface for running pipeline scripts on the cluster with singularity
+
+  Loops through an input subject_list_txt (txt with subj id on each line)
+  Can be used to run scripts that generally take command-line parameters as:
+
+  <script_name> <before args (optional)> <subjid (required)> <after args (optional)>
+
+--------------------------------------------------------------------------
+Usage: neurogliaArray  <script_name>  <subject_list_txt>  <optional flags> 
+--------------------------------------------------------------------------
+
+optional flags:
+
+ -g : group/reduce job, pass the subject list instead of looping over subjects
+ -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead
+ -t : test-mode, don/'t actually submit any jobs
+
+ Required resources:
+ -j <job-template> :  sets requested resources
+	Regular (default):	8core/32gb/24h
+	LongSkinny:		1core/4gb/72h
+	ShortFat:		32core/128gb/3h
+
+ Passing arguments to pipeline script
+  -b /args/ : cmd-line arguments that go *before* the subject id
+  -a /args/ : cmd-line arguments that go *after* the subject id
+
+ SLURM Job dependencies for pipelining (man sbatch for more details):
+  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids
+  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id
+```
 
 

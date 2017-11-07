@@ -1,0 +1,208 @@
+#!/bin/bash
+host=`hostname`
+if [ ! ${host:0:3} == "gra" ]
+then
+	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
+	exit 1
+fi
+
+
+
+#run a pipeline job on the cluster
+#pipeline jobs take subjids as args
+
+if [ ! -n "$SINGULARITY_IMG" ]
+then
+	echo "SINGULARITY_IMG not defined! exiting..." >&2
+	exit 1
+fi
+
+if [ ! -n "$SINGULARITY_OPTS" ]
+then
+	echo "SINGULARITY_OPTS not defined! exiting..." >&2
+	exit 1
+fi
+
+cmd=$0
+cmdname=${cmd##*/}
+
+
+if [ "$#" -lt 2 ]
+then 
+   echo""
+   echo "=========================================================================="
+   echo "Interface for running pipeline scripts on the cluster with singularity"
+   echo ""
+   echo "  Loops through an input subject_list_txt (txt with subj id on each line)"
+   echo "  Can be used to run scripts that generally take command-line parameters as:"
+   echo ""
+   echo "  <script_name> <before args (optional)> <subjid (required)> <after args (optional)>"
+   echo ""
+   echo "--------------------------------------------------------------------------"
+   echo "Usage: $cmdname  <script_name>  <subject_list_txt>  <optional flags> "
+   echo "--------------------------------------------------------------------------"
+   echo ""
+   echo "optional flags:"
+   echo ""
+   echo " -g : group/reduce job, pass the subject list instead of looping over subjects"
+   echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
+   echo " -t : test-mode, don/'t actually submit any jobs"
+   echo ""
+   echo " Required resources:"
+   echo " -j <job-template> :  sets requested resources"
+   echo "	Regular (default):	8core/32gb/24h"
+   echo "	LongSkinny:		1core/4gb/72h"
+   echo "	ShortFat:		32core/128gb/3h"
+   echo ""
+   echo " Passing arguments to pipeline script"
+   echo "  -b /"args/" : cmd-line arguments that go *before* the subject id"
+   echo "  -a /"args/" : cmd-line arguments that go *after* the subject id"
+   echo ""
+   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
+   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
+   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
+   echo ""
+
+  exit 1
+fi
+
+
+output_dir=.
+
+pipeline_script=$1
+subjlist=$2
+shift 2
+
+before_args=""
+after_args=""
+job_template=Regular
+depends=""
+group=0
+singlesubj=""
+testmode=0
+
+scriptname=${pipeline_script##*/} #strip leading path
+echo $scriptname >&2
+
+while getopts "b:a:j:d:gs:t" options; do
+ case $options in
+    b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
+	before_args=$OPTARG;;
+    a ) echo "	Setting arguments after subjid:  $OPTARG" >&2
+	after_args=$OPTARG;;
+    j ) echo "	Using job template: $OPTARG" >&2
+	job_template=$OPTARG;;
+    d ) echo "	Using dependencies: $OPTARG" >&2
+	depends=$OPTARG;;
+    s ) echo "	Using single subject: $OPTARG" >&2
+	singlesubj=$OPTARG;;
+    g ) echo "	Using group/reduce mode (pass subject list instead of each subj" >&2
+	group=1;;
+    t ) echo "  Using test-mode (no submit jobs)" >&2
+	testmode=1;;
+    * ) usage
+	exit 1;;
+ esac
+done
+
+
+#check subjlist validity and get # of subjects
+if [ -f $subjlist ]
+then
+	N=`grep "[0-9a-zA-Z]"  $subjlist | wc -l`
+else
+ 	echo "subjlist: $subjlist not a file!" >&2
+
+	exit 1
+fi
+
+if [ ! -n "$singlesubj" ]
+then
+	echo debug no single subj
+	indices="1-$N"  # all lines in subjlist, 1 to N
+else
+	echo debug  single subj
+	if [ `grep -n $singlesubj $subjlist | wc -l` == 1 ]
+	then
+
+		ind_subj=`grep -n $singlesubj $subjlist`
+		echo debug ind_subj $ind_subj
+		indices=${ind_subj%%:*}
+	else
+		echo "single-subj: $singlesubj matches multiple subjids in $subjlist!" >&2
+		exit 1
+	fi
+fi
+
+job_dir=$output_dir/jobs
+mkdir -p $job_dir
+
+job=$job_dir/$scriptname.job
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+cp $execpath/job-templates/${job_template}.job $job  
+
+echo "#SBATCH --job-name=$scriptname" >> $job
+
+
+if [ "$group" == 0 ]
+then
+	#submit with array, using subj and subjlist, indexed by line number (1-N)
+	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
+	echo "#SBATCH --array=$indices" >> $job
+	
+	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
+	echo cd `pwd` >> $job
+	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
+	echo "echo CMD: $pipeline_script $before_args \$subj $after_args" >>$job
+	echo "echo START_TIME: \`date\`" >>$job
+	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args \$subj $after_args  >> $job
+	echo "echo END_TIME: \`date\`" >>$job
+
+	echo -n "		Queuing participant-level job, $depends ... " >&2
+else
+	#submit without arrays, using subjlist
+	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+
+	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
+	echo "echo CMD: $pipeline_script $before_args `realpath $subjlist` $after_args" >>$job
+	echo "echo START_TIME: \`date\`" >>$job
+
+	echo cd `pwd` >> $job
+	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
+	echo "echo END_TIME: \`date\`" >>$job
+	
+	
+	echo -n "		Queuing group-level job, $depends ... " >&2
+fi
+
+
+if [ "$testmode" == 0 ]
+then
+message=`sbatch --dependency=$depends $job`
+
+
+# Extract job identifier from SLURM's message.
+if ! echo ${message} | grep -q "[1-9][0-9]*$"; then 
+	echo "Job(s) submission failed." >&2
+	echo ${message} >&2
+	exit 1
+else
+	jobid=$(echo ${message} | grep -oh "[1-9][0-9]*$")
+fi
+echo "jobid=$jobid" >&2
+exec_job=$job_dir/$scriptname.$jobid.job
+
+#copy instance of this job script for provenance
+cp  $job $exec_job
+
+else
+	jobid=$RANDOM
+	echo "fake-jobid=$jobid  (test-mode: no jobs submitted)" >&2
+
+fi
+
+echo $jobid
+
+exit 0

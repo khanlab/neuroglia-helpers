@@ -98,7 +98,7 @@ while getopts "b:a:j:d:gs:t" options; do
 	singlesubj=$OPTARG;;
     g ) echo "	Using group/reduce mode (pass subject list instead of each subj" >&2
 	group=1;;
-    t ) echo "  Using test-mode (no submit jobs)" >&2
+    t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
     * ) usage
 	exit 1;;
@@ -118,18 +118,24 @@ fi
 
 if [ ! -n "$singlesubj" ]
 then
-	echo debug no single subj
 	indices="1-$N"  # all lines in subjlist, 1 to N
 else
-	echo debug  single subj
-	if [ `grep -n $singlesubj $subjlist | wc -l` == 1 ]
+	N_matched=`grep -n $singlesubj $subjlist | wc -l` 
+	if [ "$N_matched" == 1 ]
 	then
-
 		ind_subj=`grep -n $singlesubj $subjlist`
-		echo debug ind_subj $ind_subj
 		indices=${ind_subj%%:*}
-	else
-		echo "single-subj: $singlesubj matches multiple subjids in $subjlist!" >&2
+	fi
+
+	if [ "$N_matched" == 0 ]
+	then
+		echo "single_subj: $singlesubj does not match any subjids in $subjlist!" >&2
+		exit 1
+	fi
+
+	if [ "$N_matched" -gt 1 ]
+	then
+		echo "single_subj: $singlesubj matches multiple subjids in $subjlist!" >&2
 		exit 1
 	fi
 fi

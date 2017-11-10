@@ -31,6 +31,7 @@ do
  
  echo "Copying to remote folder $out_img ..."
  rsync --info=progress2 $tmp_img $out_img 
+ rm -rf $tmpdir
 
  else
   echo Skipping $out_img, already exists ...

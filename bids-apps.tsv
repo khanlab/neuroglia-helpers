@@ -1,4 +1,10 @@
 app_name	tag	repo	base_options
 fmriprep	1.0.0-rc8	poldracklab	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug
 mriqc	0.9.10	poldracklab	-n_cpus 8 --mem_gb 32000
-
+mindboggle	0.0.4	bids	
+BROCCOLI	v1.0.1	bids
+niak	latest	bids
+brainiak-srm	latest	bids
+nipypelines	0.3.0	bids
+HCPPipelines	v3.17.0-14	bids
+tracula	v6.0.0-4	bids

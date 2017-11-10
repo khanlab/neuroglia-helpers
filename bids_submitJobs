@@ -71,7 +71,6 @@ if [ ! -e $singularity_image ]
 
 if [ "$#" == 2 ]
 then
- echo "2 args"
  #get app usage
  singularity run -e $singularity_image
  exit 0

@@ -28,7 +28,7 @@ do
  echo "Pulling docker://$docker_name ..."
  singularity pull docker://$docker_name -n $out_name
  echo "Copying to remote folder $out_img ..."
- rsync --info=progress2 $out_name $out_img
+ rsync --info=progress2 ${app}-${tag}.img  $out_img
  popd
 
  else

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+slurmopts="--time=24:00:00 --mem=32000 --account=rrg-akhanf --cpus-per-task=8 --ntasks=1"
+
+remote_dir=~/graham/singularity/bids-apps
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+app_list=$execpath/bids-apps.tsv
+
+
+
+if [ "$#" -lt 2 ]
+then
+
+echo "Usage: $0 <app_name> <tag> <bids_dir> <output_dir> <participant/group>  <app options>"
+echo ""
+echo "Available apps:"
+cat $app_list | awk -F '\t' '{print $1 "\t"  $2}'
+echo ""
+echo " Run with app name to get usage for particular app."
+echo ""
+exit 0
+fi
+
+app_name=$1
+tag=$2
+
+
+repo=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $3}'`
+base_opts=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $4}'`
+singularity_image=$remote_dir/${repo}_${app_name}_${tag}.img
+
+if [ "$#" == 2 ]
+then
+ echo "2 args"
+ #get app usage
+ singularity run -e $singularity_image
+ exit 0
+fi
+
+
+
+
+bids_dir=`realpath $3`
+out_dir=`realpath $4`
+level=$5
+
+
+
+shift 5
+options=$@
+
+#loop over participants
+list=$bids_dir/participants.tsv
+
+if [ ! -e $list ]
+then
+ echo "$list does not exist, quitting!"
+ exit 0
+fi
+
+
+
+if [ "$level" = "participant" ]
+then
+	 
+for subj in `tail -n +2 $list | awk '{print $1}' `
+do
+
+ echo $subj
+
+out_submit_dir=jobs_${app_name}_`date +%Y_%m_%d_%-I%p`/$subj
+mkdir -p $out_submit_dir
+
+ job=$out_submit_dir/run.sh
+ echo "#!/bin/bash" > $job
+ echo "singularity run -e -B /project:/project $singularity_image --participant_label=$subj $default_opts $options $bids_dir $out_dir $level" >> $job
+ 
+  sbatch -J $subj.$app_name -D $out_submit_dir $slurmopts --output="slurm-%j.out" $job
+done
+
+else if [ "$level" = "group" ]
+then
+
+out_submit_dir=jobs_${app_name}_`date +%Y_%m_%d_%-I%p`/group
+mkdir -p $out_submit_dir
+
+ #group level:
+ job=$out_submit_dir/group.sh
+ echo "#!/bin/bash" > $job
+ echo "singularity run -e -B /project:/project $singularity_image $options $bids_dir $out_dir $level" >> $job
+ 
+  sbatch -J group.$app_name -D $out_submit_dir $slurmopts --output="slurm-%j.out" $job
+
+
+fi
+
+fi

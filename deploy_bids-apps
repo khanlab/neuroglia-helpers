@@ -1,0 +1,40 @@
+#!/bin/bash
+
+remote_dir=~/graham/singularity/bids-apps
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+app_list=$execpath/bids-apps.tsv
+
+Nlines=`wc -l $app_list`
+
+for i in `seq 2 $Nlines`
+do
+ 
+ app_line=`head -n $i | tail -n 1`
+  
+ app=`echo $app_line | awk -F '\t' '{print $1}'`
+ tag=`echo $app_line | awk -F '\t' '{print $2}'`
+ repo=`echo $app_line | awk -F '\t' '{print $3}'`
+ base_opts=`echo $app_line | awk -F '\t' '{print $4}'`
+
+ docker_name=${repo}/${name}:${tag}
+ out_name=${repo}_${name}_${tag}.img
+ out_img=$remote_dir/$out_name
+
+ if [ ! -e $out_img ]
+ then
+ 
+ tmpdir=/tmp/singularity$RANDOM
+ mkdir -p $tmpdir
+ pushd $tmpdir
+ singularity pull docker://$docker_name -n $out_name
+ rsync --info=progress2 $out_name $out_img
+ popd
+
+ else
+  echo Skipping $out_img, already exists ...
+ fi
+
+done

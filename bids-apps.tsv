@@ -1,3 +1,4 @@
 app_name	tag	repo	base_options
-fmriprep	1.0.0-rc8	poldracklab	--nthreads 16 --n_cpus 16 --omp-nthreads 16 --mem_mb 64000 --debug
-mriqc	0.9.10	poldracklab	-n_cpus 16 --mem_gb 64000
+fmriprep	1.0.0-rc8	poldracklab	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug
+mriqc	0.9.10	poldracklab	-n_cpus 8 --mem_gb 32000
+

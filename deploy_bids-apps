@@ -24,12 +24,13 @@ do
  
  tmpdir=/tmp/singularity$RANDOM
  mkdir -p $tmpdir
- pushd $tmpdir
  echo "Pulling docker://$docker_name ..."
- singularity pull docker://$docker_name -n $out_name
+ $execpath/docker2singularity $docker_name $tmpdir
+
+ tmp_img=`ls -tr $tmpdir/${repo}_${app}_${tag}*.img | tail -n 1`
+ 
  echo "Copying to remote folder $out_img ..."
- rsync --info=progress2 ${app}-${tag}.img  $out_img
- popd
+ rsync --info=progress2 $tmp_img $out_img 
 
  else
   echo Skipping $out_img, already exists ...

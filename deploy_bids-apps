@@ -7,20 +7,16 @@ execpath=`realpath $execpath`
 
 app_list=$execpath/bids-apps.tsv
 
-Nlines=`wc -l $app_list`
-
+Nlines=`cat $app_list | wc -l`
+echo $Nlines
 for i in `seq 2 $Nlines`
 do
- 
- app_line=`head -n $i | tail -n 1`
-  
- app=`echo $app_line | awk -F '\t' '{print $1}'`
- tag=`echo $app_line | awk -F '\t' '{print $2}'`
- repo=`echo $app_line | awk -F '\t' '{print $3}'`
- base_opts=`echo $app_line | awk -F '\t' '{print $4}'`
-
- docker_name=${repo}/${name}:${tag}
- out_name=${repo}_${name}_${tag}.img
+ app=`cat $app_list | head -n $i | tail -n 1 | awk  -F '\t' '{print $1}'`
+ tag=`cat $app_list | head -n $i | tail -n 1 | awk  -F '\t' '{print $2}'`
+ repo=`cat $app_list | head -n $i | tail -n 1 | awk  -F '\t' '{print $3}'`
+ base_opts=`cat $app_list | head -n $i | tail -n 1 | awk  -F '\t' '{print $4}'`
+ docker_name=${repo}/${app}:${tag}
+ out_name=${repo}_${app}_${tag}.img
  out_img=$remote_dir/$out_name
 
  if [ ! -e $out_img ]
@@ -29,7 +25,9 @@ do
  tmpdir=/tmp/singularity$RANDOM
  mkdir -p $tmpdir
  pushd $tmpdir
+ echo "Pulling docker://$docker_name ..."
  singularity pull docker://$docker_name -n $out_name
+ echo "Copying to remote folder $out_img ..."
  rsync --info=progress2 $out_name $out_img
  popd
 

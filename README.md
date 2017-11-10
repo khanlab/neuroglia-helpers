@@ -7,7 +7,8 @@ Helper & wrapper scripts for using the neuroglia (and neuroglia-vasst-dev) singu
 ```
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
 echo "export PATH=~/neuroglia-helpers:\$PATH" >> ~/.bashrc
-echo "export SINGULARITY_IMG=/project/6007967/akhanf/singularity/khanlab_neuroglia-vasst-dev_0.0.1e.img" >> ~/.bashrc
+echo "export SINGULARITY_DIR=/project/6007967/akhanf/singularity" >> ~/.bashrc
+echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0.1g.img" >> ~/.bashrc
 echo "export SINGULARITY_OPTS=\"-e -B /project:/project -B /scratch:/scratch\"" >> ~/.bashrc
 ```
 

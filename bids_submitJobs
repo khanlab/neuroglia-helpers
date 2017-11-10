@@ -1,8 +1,22 @@
 #!/bin/bash
 
+if [ ! -n "$SINGULARITY_DIR" ]
+then
+	echo "SINGULARITY_DIR not defined! exiting..." >&2
+	exit 1
+fi
+
+
+if [ ! -n "$SINGULARITY_OPTS" ]
+then
+	echo "SINGULARITY_OPTS not defined! exiting..." >&2
+	exit 1
+fi
+
+
 slurmopts="--time=24:00:00 --mem=32000 --account=rrg-akhanf --cpus-per-task=8 --ntasks=1"
 
-remote_dir=~/graham/singularity/bids-apps
+bids_app_dir=$SINGULARITY_DIR/bids-apps
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
@@ -11,7 +25,11 @@ app_list=$execpath/bids-apps.tsv
 
 
 
-if [ "$#" -lt 2 ]
+if [  "$#" -lt 5  ]
+then
+
+
+if [ ! "$#" == 2 ]
 then
 
 echo "Usage: $0 <app_name> <tag> <bids_dir> <output_dir> <participant/group>  <app options>"
@@ -24,13 +42,32 @@ echo ""
 exit 0
 fi
 
+fi
+
 app_name=$1
 tag=$2
 
 
 repo=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $3}'`
+
+if [ ! -n "$repo"  ]
+then
+	echo "${app_name} ${tag} does not exist in bids-app list!" 
+	exit 1
+fi
+
 base_opts=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $4}'`
-singularity_image=$remote_dir/${repo}_${app_name}_${tag}.img
+singularity_image=$bids_app_dir/${repo}_${app_name}_${tag}.img
+
+
+if [ ! -e $singularity_image ]
+ then 
+	 echo "Singularity image: $singularity_image  not found,"
+	echo "   run deploy_bids-apps first on your local machine"
+	 exit 1
+ fi
+
+
 
 if [ "$#" == 2 ]
 then
@@ -76,7 +113,7 @@ mkdir -p $out_submit_dir
 
  job=$out_submit_dir/run.sh
  echo "#!/bin/bash" > $job
- echo "singularity run -e -B /project:/project $singularity_image --participant_label=$subj $default_opts $options $bids_dir $out_dir $level" >> $job
+ echo "singularity run ${SINGULARITY_OPTS} $singularity_image --participant_label=$subj $default_opts $options $bids_dir $out_dir $level" >> $job
  
   sbatch -J $subj.$app_name -D $out_submit_dir $slurmopts --output="slurm-%j.out" $job
 done
@@ -90,7 +127,7 @@ mkdir -p $out_submit_dir
  #group level:
  job=$out_submit_dir/group.sh
  echo "#!/bin/bash" > $job
- echo "singularity run -e -B /project:/project $singularity_image $options $bids_dir $out_dir $level" >> $job
+ echo "singularity run ${SINGULARITY_OPTS} $singularity_image $options $bids_dir $out_dir $level" >> $job
  
   sbatch -J group.$app_name -D $out_submit_dir $slurmopts --output="slurm-%j.out" $job
 

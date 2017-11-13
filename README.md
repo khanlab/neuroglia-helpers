@@ -11,6 +11,9 @@ echo "export SINGULARITY_DIR=/project/6007967/akhanf/singularity" >> ~/.bashrc
 echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0.2.img" >> ~/.bashrc
 echo "export SINGULARITY_OPTS=\"-e -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch\"" >> ~/.bashrc
 ```
+### Setting up your workspace:
+
+Compute Canada does not allow any GUI (X) applications to be run, even in interactive mode. The best way to run these applications is from your local workstation, using sshfs to mount your folder on graham, (and optionally passwordless ssh to allow for easier access). Use the setup_* scripts to configure your local system. Once your sshfs mount is created, you can use that for visualizing your data, running stats, etc., latency is reasonable as long as data is not too big (i.e. GB's)
 
 ### Wrappers:
 
@@ -20,7 +23,6 @@ SINGULARITY_DIR=<path to folder containing singularity images>
 SINGULARITY_IMG=<path to default (neuroglia) singularity container>
 SINGULARITY_OPTS=<options for singularity, e.g. path binding>
 ```
-
 
 
 * neuroglia

@@ -6,16 +6,15 @@ then
 	exit 1
 fi
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+app_list=$execpath/bids-apps.tsv
+
 
 
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
-
-if [ ! -n "$SINGULARITY_IMG" ]
-then
-	echo "SINGULARITY_IMG not defined! exiting..." >&2
-	exit 1
-fi
 
 if [ ! -n "$SINGULARITY_OPTS" ]
 then
@@ -27,24 +26,22 @@ cmd=$0
 cmdname=${cmd##*/}
 
 
-if [ "$#" -lt 2 ]
+if [ "$#" -lt 5 ]
 then 
    echo""
    echo "=========================================================================="
-   echo "Interface for running pipeline scripts on the cluster with singularity"
+   echo "Interface for running bids apps on the cluster with singularity"
    echo ""
    echo "  Loops through an input subject_list_txt (txt with subj id on each line)"
    echo "  Can be used to run scripts that generally take command-line parameters as:"
    echo ""
-   echo "  <script_name> <before args (optional)> <subjid (required)> <after args (optional)>"
+   echo "Usage: $cmdname <optional flags> <app_name> <version> <bids_dir> <output_dir> <participant/group> <app options>"
    echo ""
-   echo "--------------------------------------------------------------------------"
-   echo "Usage: $cmdname  <script_name>  <subject_list_txt>  <optional flags> "
-   echo "--------------------------------------------------------------------------"
+   echo "Available apps:"
+	cat $app_list | awk -F '\t' '{print $1 "\t"  $2}'
    echo ""
    echo "optional flags:"
    echo ""
-   echo " -g : group/reduce job, pass the subject list instead of looping over subjects"
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo ""
@@ -54,9 +51,6 @@ then
    echo "	LongSkinny:		1core/4gb/72h"
    echo "	ShortFat:		32core/128gb/3h"
    echo ""
-   echo " Passing arguments to pipeline script"
-   echo "  -b /"args/" : cmd-line arguments that go *before* the subject id"
-   echo "  -a /"args/" : cmd-line arguments that go *after* the subject id"
    echo ""
    echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
    echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
@@ -66,38 +60,24 @@ then
   exit 1
 fi
 
-
-output_dir=.
-
-pipeline_script=$1
-subjlist=$2
-shift 2
-
-before_args=""
-after_args=""
 job_template=Regular
 depends=""
-group=0
 singlesubj=""
 testmode=0
 
-scriptname=${pipeline_script##*/} #strip leading path
-echo $scriptname >&2
 
-while getopts "b:a:j:d:gs:t" options; do
+output_dir=.
+
+while getopts "j:d:s:tl:" options; do
  case $options in
-    b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
-	before_args=$OPTARG;;
-    a ) echo "	Setting arguments after subjid:  $OPTARG" >&2
-	after_args=$OPTARG;;
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
 	depends=$OPTARG;;
+    l ) echo "	Using subject list: $OPTARG" >&2
+	subjlist=$OPTARG;;
     s ) echo "	Using single subject: $OPTARG" >&2
 	singlesubj=$OPTARG;;
-    g ) echo "	Using group/reduce mode (pass subject list instead of each subj" >&2
-	group=1;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
     * ) usage
@@ -105,34 +85,67 @@ while getopts "b:a:j:d:gs:t" options; do
  esac
 done
 
+shift $((OPTIND-1))
 
-#check subjlist validity and get # of subjects
-if [ -f $subjlist ]
+bids_app_dir=$SINGULARITY_DIR/bids-apps
+
+app_name=$1
+tag=$2
+bids_dir=`realpath $3`
+out_dir=$4
+level=$5
+
+mkdir -p $out_dir
+out_dir=`realpath $out_dir`
+
+shift 5
+options=$@
+
+repo=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $3}'`
+
+if [ ! -n "$repo"  ]
 then
-	N=`grep "[0-9a-zA-Z]"  $subjlist | wc -l`
-else
-	if [ "$group" = 0 ]
-	then
- 	echo "subjlist: $subjlist not a file!" >&2
-
+	echo "${app_name} ${tag} does not exist in bids-app list!" 
 	exit 1
-	fi
 fi
 
+base_opts=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $4}'`
+singularity_image=$bids_app_dir/${repo}_${app_name}_${tag}.img
+
+if [ ! -e $singularity_image ]
+ then 
+	 echo "Singularity image: $singularity_image  not found,"
+	echo "   run deploy_bids-apps first on your local machine"
+	 exit 1
+ fi
+
+
+
+list=$bids_dir/participants.tsv
+
+if [ ! -e $list ]
+then
+ echo "$list does not exist, quitting!"
+ exit 0
+fi
+
+N=`tail -n +2 $list | wc -l`
+
+#TODO modify this to accept a subject list instead of just single subjects
 if [ ! -n "$singlesubj" ]
 then
 	indices="1-$N"  # all lines in subjlist, 1 to N
 else
-	N_matched=`grep -n $singlesubj $subjlist | wc -l` 
+	N_matched=`grep -n sub-$singlesubj $list | wc -l` 
 	if [ "$N_matched" == 1 ]
 	then
-		ind_subj=`grep -n $singlesubj $subjlist`
+		ind_subj=`grep -n sub-$singlesubj $list`
 		indices=${ind_subj%%:*}
 	fi
 
 	if [ "$N_matched" == 0 ]
 	then
-		echo "single_subj: $singlesubj does not match any subjids in $subjlist!" >&2
+		echo "single_subj: $singlesubj does not match any subjids in $list!" >&2
 		exit 1
 	fi
 
@@ -146,40 +159,36 @@ fi
 job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
-job=$job_dir/$scriptname.job
+job=$job_dir/$app_name.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
 cp $execpath/job-templates/${job_template}.job $job  
 
-echo "#SBATCH --job-name=$scriptname" >> $job
+echo "#SBATCH --job-name=$app_name" >> $job
 
 
-if [ "$group" == 0 ]
+if [ "$level" == "participant" ]
 then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
-	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
+	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
 	
-	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
-	echo cd `pwd` >> $job
-	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
-	echo "echo CMD: $pipeline_script $before_args \$subj $after_args" >>$job
+	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $list` | awk '{print \$1}' | tail -n 1\`" >> $job
+	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
+	echo "echo CMD: --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
-	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args \$subj $after_args  >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level  >> $job
 	echo "echo END_TIME: \`date\`" >>$job
 
 	echo -n "		Queuing participant-level job, $depends ... " >&2
 else
-	#submit without arrays, using subjlist
-	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
-
-	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
-	echo "echo CMD: $pipeline_script $before_args `realpath $subjlist` $after_args" >>$job
+	#submit without arrays, for group level
+	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A.out" >> $job
+	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
+	echo "echo CMD: $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
-
-	echo cd `pwd` >> $job
-	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image $base_opts $options $bids_dir $out_dir $level  >> $job
 	echo "echo END_TIME: \`date\`" >>$job
 	
 	
@@ -201,7 +210,7 @@ else
 	jobid=$(echo ${message} | grep -oh "[1-9][0-9]*$")
 fi
 echo "jobid=$jobid" >&2
-exec_job=$job_dir/$scriptname.$jobid.job
+exec_job=$job_dir/$app_name.$jobid.job
 
 #copy instance of this job script for provenance
 cp  $job $exec_job

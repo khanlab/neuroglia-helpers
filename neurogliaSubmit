@@ -1,6 +1,6 @@
 #!/bin/bash
 host=`hostname`
-if [ ! ${host:0:3} == "gra" ]
+if [ ! ${host:0:3} = "gra" ]
 then
 	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
 	exit 1
@@ -59,11 +59,11 @@ fi
 job_template=Regular
 depends=""
 testmode=0
-
+enable_wait=0
 
 output_dir=.
 
-while getopts "j:d:t" options; do
+while getopts "j:d:tW" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -71,6 +71,8 @@ while getopts "j:d:t" options; do
 	depends=$OPTARG;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
+    W ) echo "  Wait until job completes" >&2
+	enable_wait=1;;
     * ) usage
 	exit 1;;
  esac
@@ -106,10 +108,15 @@ echo "echo END_TIME: \`date\`" >>$job
 echo -n "		Queuing job, $depends ... " >&2
 
 
-if [ "$testmode" == 0 ]
+if [ "$testmode" = 0 ]
 then
-message=`sbatch --dependency=$depends $job`
 
+if [ "$enable_wait" == 1 ]
+then
+message=`sbatch --dependency=$depends -W $job`
+else
+message=`sbatch --dependency=$depends $job`
+fi
 
 # Extract job identifier from SLURM's message.
 if ! echo ${message} | grep -q "[1-9][0-9]*$"; then 

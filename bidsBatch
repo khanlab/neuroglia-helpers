@@ -1,33 +1,6 @@
 #!/bin/bash
-host=`hostname`
-if [ ! ${host:0:3} == "gra" ]
-then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
-	exit 1
-fi
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-
-app_list=$execpath/bids-apps.tsv
-
-
-
-#run a pipeline job on the cluster
-#pipeline jobs take subjids as args
-
-if [ ! -n "$SINGULARITY_OPTS" ]
-then
-	echo "SINGULARITY_OPTS not defined! exiting..." >&2
-	exit 1
-fi
-
-cmd=$0
-cmdname=${cmd##*/}
-
-
-if [ "$#" -lt 5 ]
-then 
+function usage {
    echo""
    echo "=========================================================================="
    echo "Interface for running bids apps on the cluster with singularity"
@@ -57,24 +30,46 @@ then
    echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
    echo ""
 
-  exit 1
+ }
+
+
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+app_list=$execpath/bids-apps.tsv
+
+if [ ! -n "$SINGULARITY_OPTS" ]
+then
+	echo "SINGULARITY_OPTS not defined! exiting..." >&2
+	exit 1
 fi
+
+cmd=$0
+cmdname=${cmd##*/}
+
+
+#add option for this
+#	   #get app usage
+#	   echo getting app usage
+#	   singularity run -e $singularity_image
+
 
 job_template=Regular
 depends=""
 singlesubj=""
 testmode=0
-
+subjlist=""
 
 output_dir=.
 
-while getopts "j:d:s:tl:" options; do
+while getopts "j:d:s:tS:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
 	depends=$OPTARG;;
-    l ) echo "	Using subject list: $OPTARG" >&2
+    S ) echo "	Using subject list: $OPTARG" >&2
 	subjlist=$OPTARG;;
     s ) echo "	Using single subject: $OPTARG" >&2
 	singlesubj=$OPTARG;;
@@ -87,7 +82,11 @@ done
 
 shift $((OPTIND-1))
 
-bids_app_dir=$SINGULARITY_DIR/bids-apps
+if [ "$#" -lt 5 ]
+then
+	usage
+	exit 1
+fi
 
 app_name=$1
 tag=$2
@@ -95,12 +94,17 @@ bids_dir=`realpath $3`
 out_dir=$4
 level=$5
 
+
+
 mkdir -p $out_dir
 out_dir=`realpath $out_dir`
 
 shift 5
 options=$@
 
+
+
+bids_app_dir=$SINGULARITY_DIR/bids-apps
 repo=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $3}'`
 
 if [ ! -n "$repo"  ]
@@ -126,7 +130,7 @@ list=$bids_dir/participants.tsv
 if [ ! -e $list ]
 then
  echo "$list does not exist, quitting!"
- exit 0
+ exit 1
 fi
 
 N=`tail -n +2 $list | wc -l`
@@ -134,7 +138,28 @@ N=`tail -n +2 $list | wc -l`
 #TODO modify this to accept a subject list instead of just single subjects
 if [ ! -n "$singlesubj" ]
 then
-	indices="1-$N"  # all lines in subjlist, 1 to N
+	if [ ! -n $subjlist ]
+	then
+		indices="1-$N"  # all lines in subjlist, 1 to N
+	else
+		#pick out indices from subjlist
+		indices=""
+		for sub in `cat $subjlist`
+		do
+			N_matched=`grep -n sub-$sub $list | wc -l` 
+			ind=`grep -n sub-$sub $list`
+			if [ "$N_matched" = 1 ]
+			then
+				ind=${ind%%:*}
+				if [ -n "$indices" ]
+				then
+					indices="$indices,$ind"
+				else
+					indices="$ind"
+				fi
+			fi
+		done
+	fi
 else
 	N_matched=`grep -n sub-$singlesubj $list | wc -l` 
 	if [ "$N_matched" == 1 ]

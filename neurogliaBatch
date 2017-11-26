@@ -167,7 +167,11 @@ then
 	echo "echo CMD: $pipeline_script $before_args \$subj $after_args" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args \$subj $after_args  >> $job
+	echo "RETURNVAL=\$?" >> $job
+	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
+	echo "exit \$RETURNVAL" >> $job
+	
 
 	echo -n "		Queuing participant-level job, $depends ... " >&2
 else
@@ -180,7 +184,10 @@ else
 
 	echo cd `pwd` >> $job
 	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
+	echo "RETURNVAL=\$?" >> $job
+	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
+	echo "exit \$RETURNVAL" >> $job
 	
 	
 	echo -n "		Queuing group-level job, $depends ... " >&2

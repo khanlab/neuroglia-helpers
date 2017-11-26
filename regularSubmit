@@ -42,18 +42,6 @@ fi
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
 
-if [ ! -n "$SINGULARITY_IMG" ]
-then
-	echo "SINGULARITY_IMG not defined! exiting..." >&2
-	exit 1
-fi
-
-if [ ! -n "$SINGULARITY_OPTS" ]
-then
-	echo "SINGULARITY_OPTS not defined! exiting..." >&2
-	exit 1
-fi
-
 cmd=$0
 cmdname=${cmd##*/}
 
@@ -110,7 +98,6 @@ cp $execpath/job-templates/${job_template}.job $job
 
 echo "#SBATCH --job-name=$cmdname" >> $job
 echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
-echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -119,7 +106,7 @@ echo "echo CMD: $@" >>$job
 fi
 echo "echo START_TIME: \`date\`" >>$job
 echo cd `pwd` >> $job
-echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
+echo $@ >> $job
 echo "RETURNVAL=\$?" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job
 echo "echo END_TIME: \`date\`" >>$job

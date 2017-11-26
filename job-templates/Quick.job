@@ -1,0 +1,6 @@
+#!/bin/bash
+#SBATCH --account=rrg-akhanf
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4000
+#SBATCH --time=0:10:00

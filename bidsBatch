@@ -129,16 +129,15 @@ list=$bids_dir/participants.tsv
 
 if [ ! -e $list ]
 then
- echo "$list does not exist, quitting!"
+ echo "$list does not exist, quitting!" >&2 
  exit 1
 fi
 
 N=`tail -n +2 $list | wc -l`
 
-#TODO modify this to accept a subject list instead of just single subjects
 if [ ! -n "$singlesubj" ]
 then
-	if [ ! -n $subjlist ]
+	if [ ! -n "$subjlist" ]
 	then
 		indices="1-$N"  # all lines in subjlist, 1 to N
 	else
@@ -204,7 +203,10 @@ then
 	echo "echo CMD: --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level  >> $job
+	echo "RETURNVAL=\$?" >> $job
+	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
+	echo "exit \$RETURNVAL" >> $job
 
 	echo -n "		Queuing participant-level job, $depends ... " >&2
 else
@@ -214,8 +216,11 @@ else
 	echo "echo CMD: $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo singularity run $SINGULARITY_OPTS $singularity_image $base_opts $options $bids_dir $out_dir $level  >> $job
+	echo "RETURNVAL=\$?" >> $job
+	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
-	
+	echo "exit \$RETURNVAL" >> $job
+
 	
 	echo -n "		Queuing group-level job, $depends ... " >&2
 fi

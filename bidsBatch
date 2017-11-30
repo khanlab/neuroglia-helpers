@@ -61,7 +61,7 @@ singlesubj=""
 testmode=0
 subjlist=""
 
-output_dir=.
+output_dir=`realpath .`
 
 while getopts "j:d:s:tS:" options; do
  case $options in

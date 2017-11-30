@@ -67,7 +67,7 @@ then
 fi
 
 
-output_dir=.
+output_dir=`realpath .`
 
 pipeline_script=$1
 subjlist=$2

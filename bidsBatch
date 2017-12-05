@@ -61,7 +61,7 @@ singlesubj=""
 testmode=0
 subjlist=""
 
-output_dir=.
+output_dir=`realpath $PWD`
 
 while getopts "j:d:s:tS:" options; do
  case $options in
@@ -202,8 +202,12 @@ then
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD: --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
+	echo "SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
+	echo "mkdir -p \$SCRATCH_DIR" >> $job
+	echo "cd `pwd`" >> $job
 	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level  >> $job
 	echo "RETURNVAL=\$?" >> $job
+	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
 	echo "exit \$RETURNVAL" >> $job
@@ -215,8 +219,12 @@ else
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD: $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
+	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
+	echo "mkdir -p \$SCRATCH_DIR" >> $job
+	echo "cd `pwd`" >> $job
 	echo singularity run $SINGULARITY_OPTS $singularity_image $base_opts $options $bids_dir $out_dir $level  >> $job
 	echo "RETURNVAL=\$?" >> $job
+	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
 	echo "exit \$RETURNVAL" >> $job

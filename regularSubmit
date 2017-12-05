@@ -54,7 +54,7 @@ testmode=0
 enable_wait=0
 ninja=0
 
-output_dir=.
+output_dir=`realpath $PWD`
 
 while getopts "j:d:tWnN:" options; do
  case $options in

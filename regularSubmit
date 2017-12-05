@@ -42,10 +42,6 @@ fi
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
 
-cmd=$0
-cmdname=${cmd##*/}
-
-
 if [ "$#" -lt 1 ]
 then 
   usage
@@ -60,7 +56,7 @@ ninja=0
 
 output_dir=.
 
-while getopts "j:d:tWn" options; do
+while getopts "j:d:tWnN:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -72,6 +68,8 @@ while getopts "j:d:tWn" options; do
 	enable_wait=1;;
     n ) echo "  Using ninja mode" >&2
 	ninja=1;;
+    N ) echo "	Using job name: $OPTARG" >&2
+	cmdname=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -82,7 +80,12 @@ shift $((OPTIND-1))
 
 run_cmd=$1
 
+
+if [ ! -n "$cmdname" ]
+then
 cmdname=${run_cmd##*/} #remove up to leading slash
+fi
+
 
 echo $cmdname >&2
 

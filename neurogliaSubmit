@@ -70,7 +70,7 @@ testmode=0
 enable_wait=0
 ninja=0
 
-output_dir=`realpath .`
+output_dir=`realpath $PWD`
 
 while getopts "j:d:tWn" options; do
  case $options in
@@ -118,9 +118,12 @@ else
 echo "echo CMD: $@" >>$job
 fi
 echo "echo START_TIME: \`date\`" >>$job
+echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
+echo "mkdir -p \$SCRATCH_DIR" >> $job
 echo cd `pwd` >> $job
 echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
 echo "RETURNVAL=\$?" >> $job
+echo "rm -rf \$SCRATCH_DIR" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job
 echo "echo END_TIME: \`date\`" >>$job
 echo "exit \$RETURNVAL" >> $job

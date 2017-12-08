@@ -16,6 +16,7 @@ then
    echo "optional flags:"
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -e : preserve environment variables (--export=ALL to sbatch)"
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -39,15 +40,18 @@ shift 1
 job_template=Regular
 depends=""
 testmode=0
+keepenv=0
 
-while getopts "j:td:" options; do
+while getopts "j:td:e" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
 	depends=$OPTARG;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
-	testmode=1;;
+	testmode=1;; 
+    e ) echo "	Preserve environment (--export=ALL)" >&2
+	keepenv=1;;
     * ) usage
 	exit 1;;
  esac
@@ -85,16 +89,25 @@ echo "cmd=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $joblist`  | tail -n 1\`" >>
 echo cd `pwd` >> $job
 echo "echo CMD: \$cmd " >>$job
 echo "echo START_TIME: \`date\`" >>$job
+echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
+echo "mkdir -p \$SCRATCH_DIR" >> $job
 echo "\$cmd" >> $job
 echo "RETURNVAL=\$?" >> $job
+echo "rm -rf \$SCRATCH_DIR" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job
 echo "echo END_TIME: \`date\`" >>$job
 echo "exit \$RETURNVAL" >> $job
 	
+if [ "$keepenv" == 1 ]
+then
+	keepopt="--export=ALL"
+else
+	keepopt=""
+fi
 
 if [ "$testmode" == 0 ]
 then
-message=`sbatch --dependency=$depends $job`
+message=`sbatch $keepopt --dependency=$depends $job`
 
 # Extract job identifier from SLURM's message.
 if ! echo ${message} | grep -q "[1-9][0-9]*$"; then 

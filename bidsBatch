@@ -105,7 +105,7 @@ options=$@
 
 
 bids_app_dir=$SINGULARITY_DIR/bids-apps
-repo=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $3}'`
+repo=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $3}'`
 
 if [ ! -n "$repo"  ]
 then
@@ -113,7 +113,7 @@ then
 	exit 1
 fi
 
-base_opts=`grep "${app_name}	${tag}" $app_list | awk -F '\t' '{print $4}'`
+base_opts=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $4}'`
 singularity_image=$bids_app_dir/${repo}_${app_name}_${tag}.img
 
 if [ ! -e $singularity_image ]

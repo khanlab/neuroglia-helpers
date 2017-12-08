@@ -198,7 +198,7 @@ then
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
 	
-	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $list` | awk '{print \$1}' | tail -n 1\`" >> $job
+	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD: --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job

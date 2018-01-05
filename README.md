@@ -10,16 +10,14 @@ To set-up neuroglia-helpers on graham, run the following:
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
 echo "export PATH=~/neuroglia-helpers:\$PATH" >> ~/.bashrc
 echo "export SINGULARITY_DIR=/project/6007967/akhanf/singularity" >> ~/.bashrc
-echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0.2.img" >> ~/.bashrc
+echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0.2f.img" >> ~/.bashrc
 echo "export SINGULARITY_OPTS=\"-e -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch\"" >> ~/.bashrc
 ```
 
-To set-up singularity 2.4 on graham, run the following (module load singularity still uses the older 2.3.1):
+To set-up singularity 2.4 on graham, run the following:
 ```
-echo "export PATH=/opt/software/singularity-2.4.0/bin:\$PATH" >> ~/.bashrc
-echo "export LD_LIBRARY_PATH=/opt/software/singularity-2.4.0/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+echo "module load singularity/2.4" >> ~/.bashrc
 ```
-
 
 ### Setting up your workspace:
 

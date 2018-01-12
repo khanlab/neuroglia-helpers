@@ -152,9 +152,9 @@ then
 				ind=${ind%%:*}
 				if [ -n "$indices" ]
 				then
-					indices="$indices,$ind"
+					indices="$indices,$((ind-1))"
 				else
-					indices="$ind"
+					indices="$((ind-1))"
 				fi
 			fi
 		done
@@ -165,6 +165,7 @@ else
 	then
 		ind_subj=`grep -n sub-$singlesubj $list`
 		indices=${ind_subj%%:*}
+		indices=$((indices-1))
 	fi
 
 	if [ "$N_matched" == 0 ]

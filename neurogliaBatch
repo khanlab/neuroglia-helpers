@@ -161,13 +161,13 @@ then
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
 	
+	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
+	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
 	echo cd `pwd` >> $job
 	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 	echo "echo CMD: $pipeline_script $before_args \$subj $after_args" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
-	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
-	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args \$subj $after_args  >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
@@ -181,11 +181,11 @@ else
 	#submit without arrays, using subjlist
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
 
+	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
+	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 	echo "echo CMD: $pipeline_script $before_args `realpath $subjlist` $after_args" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
-	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
-	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo cd `pwd` >> $job
 	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
 	echo "RETURNVAL=\$?" >> $job

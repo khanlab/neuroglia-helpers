@@ -69,10 +69,11 @@ depends=""
 testmode=0
 enable_wait=0
 ninja=0
+scmd="exec"
 
 output_dir=`realpath $PWD`
 
-while getopts "j:d:tWn" options; do
+while getopts "j:d:tWnrN:I:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -84,6 +85,13 @@ while getopts "j:d:tWn" options; do
 	enable_wait=1;;
     n ) echo "  Using ninja mode" >&2
 	ninja=1;;
+    r ) echo "  Run instead of exec" >&2
+	scmd="run";;
+    N ) echo "	Using job name: $OPTARG" >&2
+	cmdname=$OPTARG;;
+    I ) echo "	Using SINGULARITY_IMG: $OPTARG" >&2
+	SINGULARITY_IMG=$OPTARG;;
+
     * ) usage
 	exit 1;;
  esac
@@ -94,7 +102,11 @@ shift $((OPTIND-1))
 
 run_cmd=$1
 
+
+if [ ! -n "$cmdname" ]
+then
 cmdname=${run_cmd##*/} #remove up to leading slash
+fi
 
 echo $cmdname >&2
 
@@ -121,7 +133,7 @@ echo "echo START_TIME: \`date\`" >>$job
 echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
 echo "mkdir -p \$SCRATCH_DIR" >> $job
 echo cd `pwd` >> $job
-echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
+echo singularity $scmd $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
 echo "RETURNVAL=\$?" >> $job
 echo "rm -rf \$SCRATCH_DIR" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job

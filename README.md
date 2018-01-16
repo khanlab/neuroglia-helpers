@@ -1,7 +1,13 @@
 # neuroglia-helpers
 
-Helper & wrapper scripts for using the neuroglia (and neuroglia-vasst-dev) singularity image locally and remotely on graham (compute canada)
+Helper & wrapper scripts for using Singularity images locally and remotely on graham (compute canada) - or any other SLURM system
 
+Features:
+* wrapper scripts for submitting single and batch jobs using SLURM arrays
+* variants of scripts that use (neuroglia*) and do not use (regular*) singularity
+* scripts for interactive job submission including singularity shell
+* BIDS-App support with parallelization over subjects with SLURM arrays
+* Deployment via docker2singularity or singularity-hub
 
 ### Install:
 

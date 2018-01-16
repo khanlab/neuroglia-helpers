@@ -8,7 +8,7 @@ execpath=`realpath $execpath`
 app_list=$execpath/bids-apps.tsv
 
 Nlines=`cat $app_list | wc -l`
-echo $Nlines
+
 for i in `seq 2 $Nlines`
 do
  app=`cat $app_list | head -n $i | tail -n 1 | awk  -F '\t' '{print $1}'`

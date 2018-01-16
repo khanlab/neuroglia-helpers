@@ -9,7 +9,7 @@ Features:
 * BIDS-App support with parallelization over subjects with SLURM arrays
 * Deployment via docker2singularity or singularity-hub
 
-### Install:
+## Install:
 
 To set-up neuroglia-helpers on graham, run the following:
 ```
@@ -29,7 +29,18 @@ echo "module load singularity/2.4" >> ~/.bashrc
 
 Compute Canada does not allow any GUI (X) applications to be run, even in interactive mode. The best way to run these applications is from your local workstation, using sshfs to mount your folder on graham, (and optionally passwordless ssh to allow for easier access). Use the setup_* scripts to configure your local system. Once your sshfs mount is created, you can use that for visualizing your data, running stats, etc., latency is reasonable as long as data is not too big (i.e. GB's)
 
-### Wrappers:
+## BIDS Apps:
+
+Running bidsBatch lists the usage and displays bids-apps that are deployed on the system (contents of bids-apps.tsv).  For default app options, please also see the bids-apps.tsv file.  Note: when you run bidsBatch to process a dataset, a ```./jobs/``` folder is created in the current working directory.
+
+### Example: Running fmriprep on your bids dataset
+```
+mkdir fmriprep_work
+cd fmriprep_work
+bidsBatch fmriprep 1.0.4 ~/my-bids-dataset ~/my-bids-dataset/derivatives/fmriprep-v1.0.4 participant 
+```
+
+## Wrappers:
 
 Wrappers for singularity that make use of the following environment variables in your environment (set in .bashrc):
 ```

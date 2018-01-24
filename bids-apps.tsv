@@ -12,3 +12,4 @@ spm	latest	bids
 ndmg	v0.0.50	bids
 cpac	v1.0.2_disable_log_2	bids	
 mrtrix3_connectome	0.2.2	bids
+qsm-sstv	latest	khanlab	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs

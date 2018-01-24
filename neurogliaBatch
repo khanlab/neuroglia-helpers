@@ -84,7 +84,7 @@ testmode=0
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
 
-while getopts "b:a:j:d:gs:t" options; do
+while getopts "b:a:j:d:gs:tI:" options; do
  case $options in
     b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
 	before_args=$OPTARG;;
@@ -100,6 +100,9 @@ while getopts "b:a:j:d:gs:t" options; do
 	group=1;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
+    I ) echo "	Using SINGULARITY_IMG: $OPTARG" >&2
+	SINGULARITY_IMG=$OPTARG;;
+
     * ) usage
 	exit 1;;
  esac

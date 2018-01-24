@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Line below locks the script so cannot be run simultaneously (i.e. to prevent conflicts)
+#[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
+
+
+if [ ! -n "$SINGULARITY_DIR" ]
+then
+	echo "SINGULARITY_DIR must be set" >&2
+	exit 1
+fi
+
+if [ ! "$#" = 1 ]
+then
+	echo "Usage: $0 shub://org/repo:tag" >&2
+	exit 1
+fi
+
+#input is shub URL
+
+url=$1
+
+suff=${url##shub://}
+tag=${suff#*:}
+org=${suff%%/*}
+name=${suff#*/}
+name=${name%:*}
+
+bra=master
+
+
+cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
+if [ ! -e $cached ]
+then
+	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
+	singularity pull $url >&2 
+	if [ ! -e $cached ]
+	then
+		echo ERROR: could not pull image >&2
+		exit 1
+	fi
+
+		
+fi
+
+
+echo `realpath $cached`
+exit 0

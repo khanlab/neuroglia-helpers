@@ -201,12 +201,12 @@ then
 	
 	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
-	echo "echo CMD: --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level" >>$job
+	echo "echo CMD: --participant_label \$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "cd `pwd`" >> $job
-	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label=\$subj $base_opts $options $bids_dir $out_dir $level  >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label \$subj $base_opts $options $bids_dir $out_dir $level  >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job

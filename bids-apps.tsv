@@ -6,7 +6,7 @@ mriqc	0.10.0	poldracklab	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}
 niak	latest	bids	--n_thread 8
 brainiak-srm	latest	bids
 tracula	v6.0.0-4	bids
-prepdwi	0.0.2	khanlab
+prepdwi	0.0.3b	khanlab
 magetbrain	latest	bids
 spm	latest	bids
 ndmg	v0.0.50	bids

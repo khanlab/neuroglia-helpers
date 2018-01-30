@@ -61,7 +61,6 @@ singlesubj=""
 testmode=0
 subjlist=""
 
-output_dir=`realpath $PWD`
 
 while getopts "j:d:s:tS:" options; do
  case $options in
@@ -181,7 +180,7 @@ else
 	fi
 fi
 
-job_dir=$output_dir/jobs
+job_dir=$out_dir/jobs
 mkdir -p $job_dir
 
 job=$job_dir/$app_name.job
@@ -189,6 +188,7 @@ job=$job_dir/$app_name.job
 execpath=`dirname $0`
 execpath=`realpath $execpath`
 cp $execpath/job-templates/${job_template}.job $job  
+
 
 echo "#SBATCH --job-name=$app_name" >> $job
 
@@ -262,6 +262,7 @@ else
 
 fi
 
+echo "Job and job output stored in: $job_dir" >&2
 echo $jobid
 
 exit 0

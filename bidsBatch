@@ -200,6 +200,8 @@ then
 	echo "#SBATCH --array=$indices" >> $job
 	
 	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
+	#strip off sub- from sub-LABEL
+	echo "subj=\$\{subj##sub-\}" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD: --participant_label \$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job

@@ -60,11 +60,13 @@ depends=""
 singlesubj=""
 testmode=0
 subjlist=""
+override_template=0
 
 
 while getopts "j:d:s:tS:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
+	override_template=1
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
 	depends=$OPTARG;;
@@ -108,17 +110,28 @@ repo=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $3}'`
 
 if [ ! -n "$repo"  ]
 then
-	echo "${app_name} ${tag} does not exist in bids-app list!" 
+	echo "${app_name} ${tag} does not exist in bids-app list!"  >&2 
 	exit 1
 fi
 
 base_opts=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $4}'`
+app_job_template=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $5}'`
+
+if [ "$override_template" = "0" -a -n "$app_job_template" ]
+then
+	job_template=$app_job_template 
+	echo "Using job-template specified in bids-apps.tsv, $app_job_template" >&2
+fi
+
+
+
 singularity_image=$bids_app_dir/${repo}_${app_name}_${tag}.img
+
 
 if [ ! -e $singularity_image ]
  then 
-	 echo "Singularity image: $singularity_image  not found,"
-	echo "   run deploy_bids-apps first on your local machine"
+	 echo "Singularity image: $singularity_image  not found," >&2 
+	echo "   run deploy_bids-apps first on your local machine" >&2 
 	 exit 1
  fi
 
@@ -201,7 +214,7 @@ then
 	
 	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
 	#strip off sub- from sub-LABEL
-	echo "subj=\$\{subj##sub-\}" >> $job
+	echo "subj=\${subj##sub-}" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD: --participant_label \$subj $base_opts $options $bids_dir $out_dir $level" >>$job
 	echo "echo START_TIME: \`date\`" >>$job

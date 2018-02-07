@@ -8,10 +8,10 @@ function usage {
    echo "  Loops through an input subject_list_txt (txt with subj id on each line)"
    echo "  Can be used to run scripts that generally take command-line parameters as:"
    echo ""
-   echo "Usage: $cmdname <optional flags> <app_name> <version> <bids_dir> <output_dir> <participant/group> <app options>"
+   echo "Usage: $cmdname <optional flags> <app_name> <bids_dir> <output_dir> <participant/group> <app options>"
    echo ""
    echo "Available apps:"
-	cat $app_list | awk -F '\t' '{print $1 "\t"  $2}'
+	cat $app_list | awk -F '\t' '{print $1 "\t"  $2}' | column -t
    echo ""
    echo "optional flags:"
    echo ""
@@ -32,6 +32,87 @@ function usage {
 
  }
 
+
+function getContainer {
+
+app_name=$1
+bids_app_dir=$SINGULARITY_DIR/bids-apps
+
+#get matching line for app_name
+linenum=`awk -F '\t' '{print $1}' $app_list  | grep -n $app_name`
+linenum=${linenum%%:*}
+
+
+if [ ! -n "$linenum" ]
+then
+	echo "${app_name} does not exist in bids-app list!"  >&2 
+	exit 1
+fi
+
+url=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $2}'`
+base_opts=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $3}'`
+app_job_template=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $4}'`
+
+hub=${url%%:*}
+if [ "$hub" = "docker" ]
+then
+  #location for deployed docker images
+  repo=${url#*://}
+  repo=${repo%%/*}
+
+  app=${url##*/}
+  app=${app%:*}
+
+  tag=${url##*:}
+
+  singularity_image=$bids_app_dir/${repo}_${app}_${tag}.img
+if [ ! -e $singularity_image ]
+ then 
+	 echo "Singularity image: $singularity_image  not found," >&2 
+	echo "   run deploy_bids-apps first on your local machine" >&2 
+	 exit 1
+ fi
+
+
+fi
+
+if [ "$hub" = "shub" ]
+then
+ #use shub-cache to download if not exist, and return path to image
+ singularity_image=`shub-cache $url`
+ if [ ! "$?" = 0  -o ! -n "$singularity_image" -o ! -e "$singularity_image"  ]
+ then
+   echo "Failed to pull $url, exiting" >&2
+   exit 1
+ fi
+ 
+
+fi
+
+if [ "$hub" = "file" ]
+then
+ singularity_image=${url##file://}
+
+ if [  ! -e "$singularity_image"  ]
+ then
+   echo "File $singularity_image does not exist,  exiting" >&2
+   exit 1
+ fi
+ 
+
+fi
+
+
+if [ "$override_template" = "0" -a -n "$app_job_template" ]
+then
+	job_template=$app_job_template 
+	echo "Using job-template specified in bids-apps.tsv, $app_job_template" >&2
+fi
+
+
+
+
+}
 
 
 execpath=`dirname $0`
@@ -83,57 +164,60 @@ done
 
 shift $((OPTIND-1))
 
-if [ "$#" -lt 5 ]
+if [ "$#" -lt 1 ]
 then
 	usage
 	exit 1
 fi
 
+
 app_name=$1
-tag=$2
-bids_dir=`realpath $3`
-out_dir=$4
-level=$5
+
+shift 1
+
+getContainer $app_name
 
 
+
+if [ "$#" -lt 3 ]
+then
+	usage
+	echo "Usage for bids app:" >&2
+	if [ -e $singularity_image ]
+	then
+		singularity run $singularity_image
+	fi
+
+	exit 1
+fi
+
+bids_dir=`realpath $1`
+out_dir=$2
+level=$3
+
+#check validity of participant 
+level_part=${level:0:5}
+if [   "$level_part" != "group" -a  "$level_part" != "parti" ]
+then
+	echo "Required argument 3 to bids apps must be analysis level (participant/group)" >&2
+	exit 1
+fi
 
 mkdir -p $out_dir
 out_dir=`realpath $out_dir`
 
-shift 5
+shift 3
 options=$@
 
 
+#check if participant_label is used as an option 
+#and quit if it is found
 
-bids_app_dir=$SINGULARITY_DIR/bids-apps
-repo=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $3}'`
-
-if [ ! -n "$repo"  ]
+if [[ $options = *--participant_label* ]]
 then
-	echo "${app_name} ${tag} does not exist in bids-app list!"  >&2 
-	exit 1
-fi
-
-base_opts=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $4}'`
-app_job_template=`grep "${app_name}	${tag}	" $app_list | awk -F '\t' '{print $5}'`
-
-if [ "$override_template" = "0" -a -n "$app_job_template" ]
-then
-	job_template=$app_job_template 
-	echo "Using job-template specified in bids-apps.tsv, $app_job_template" >&2
-fi
-
-
-
-singularity_image=$bids_app_dir/${repo}_${app_name}_${tag}.img
-
-
-if [ ! -e $singularity_image ]
- then 
-	 echo "Singularity image: $singularity_image  not found," >&2 
-	echo "   run deploy_bids-apps first on your local machine" >&2 
-	 exit 1
- fi
+  echo "ERROR: --participant_label should not be used with bidsBatch, use: bidsBatch -s <participant_label> instead" >&2
+ exit 1
+fi  
 
 
 
@@ -205,7 +289,7 @@ cp $execpath/job-templates/${job_template}.job $job
 
 echo "#SBATCH --job-name=$app_name" >> $job
 
-
+#FIX THIS LATER TO ALLOW FOR  participant1 etc.., group1, group2 ...
 if [ "$level" == "participant" ]
 then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
@@ -216,12 +300,12 @@ then
 	#strip off sub- from sub-LABEL
 	echo "subj=\${subj##sub-}" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
-	echo "echo CMD: --participant_label \$subj $base_opts $options $bids_dir $out_dir $level" >>$job
+	echo "echo CMD: $bids_dir $out_dir $level --participant_label \$subj $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "cd `pwd`" >> $job
-	echo singularity run $SINGULARITY_OPTS $singularity_image --participant_label \$subj $base_opts $options $bids_dir $out_dir $level  >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
@@ -233,12 +317,12 @@ else
 	#submit without arrays, for group level
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A.out" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
-	echo "echo CMD: $base_opts $options $bids_dir $out_dir $level" >>$job
+	echo "echo CMD:  $bids_dir $out_dir $level $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "cd `pwd`" >> $job
-	echo singularity run $SINGULARITY_OPTS $singularity_image $base_opts $options $bids_dir $out_dir $level  >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job

@@ -31,14 +31,23 @@ Compute Canada does not allow any GUI (X) applications to be run, even in intera
 
 ## BIDS Apps:
 
-Running bidsBatch lists the usage and displays bids-apps that are deployed on the system (contents of bids-apps.tsv).  For default app options, please also see the bids-apps.tsv file.  Note: when you run bidsBatch to process a dataset, a ```./jobs/``` folder is created in the current working directory.
+The bidsBatch wrapper uses SLURM to parallelize over *subjects*, and by default will run a job for every subject in your participants.tsv file. 
+bidsBatch uses SLURM Arrays, so it groups all the different jobs under a single job ID, with each array job indicated as <jobid>_<index>.
+
+Running bidsBatch lists the usage and displays bids-apps that are deployed on the system (contents of bids-apps.tsv).  For default app options, please also see the bids-apps.tsv file.  Note: when you run bidsBatch to process a dataset, a ```jobs/``` folder is created in the output directory you specify.
+
 
 ### Example: Running fmriprep on your bids dataset
 ```
-mkdir fmriprep_work
-cd fmriprep_work
-bidsBatch fmriprep 1.0.4 ~/my-bids-dataset ~/my-bids-dataset/derivatives/fmriprep-v1.0.4 participant 
+bidsBatch fmriprep_1.0.4 ~/my-bids-dataset ~/my-bids-dataset/derivatives/fmriprep-v1.0.4 participant 
 ```
+To get usage/options for a particular bids app, leave out the bids-app required arguments, e.g.:
+
+```
+bidsBatch fmriprep_1.0.4 
+```
+
+
 
 ## Wrappers:
 

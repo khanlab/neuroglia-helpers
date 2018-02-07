@@ -1,15 +1,10 @@
-app_name	tag	repo	base_options	job_template
-fmriprep	1.0.4	poldracklab	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
-fmriprep	1.0.0	poldracklab	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
-fmriprep	1.0.0-rc8	poldracklab	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
-mriqc	0.10.0	poldracklab	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
-niak	latest	bids	--n_thread 8
-brainiak-srm	latest	bids
-tracula	v6.0.0-4	bids
-prepdwi	0.0.3b	khanlab		2core8gb16h
-magetbrain	latest	bids
-spm	latest	bids
-ndmg	v0.0.50	bids
-cpac	v1.0.2_disable_log_2	bids	
-mrtrix3_connectome	0.2.2	bids
-qsm-sstv	v0.0.1	khanlab	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs
+name	url	base_options	job_template
+fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
+fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
+mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
+mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
+prepdwi_0.0.4b	shub://khanlab/prepdwi:0.0.4b	--no-bedpost	2core8gb16h
+prepdwi_0.0.4b_bedpost	shub://khanlab/prepdwi:0.0.4b	--n_cpus 32	Fat
+prepdwi_0.0.3e	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.3e.img	--no-bedpost	2core8gb16h
+qsm_sstv_v0.0.1	shub://khanlab/qsm_sstv:v0.0.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs
+mp2rage_correction_v0.0.1	shub://khanlab/mp2rage_correction:v0.0.1		ShortSkinny

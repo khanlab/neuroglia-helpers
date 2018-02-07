@@ -38,12 +38,21 @@ function getContainer {
 app_name=$1
 bids_app_dir=$SINGULARITY_DIR/bids-apps
 
-#get matching line for app_name
-linenum=`awk -F '\t' '{print $1}' $app_list  | grep -n $app_name`
-linenum=${linenum%%:*}
+linenum=1
+foundmatch=0
+for app in `awk -F '\t' '{print $1}' $app_list`
+do
+
+ if [ "$app" = "$app_name" ]
+ then
+	foundmatch=1
+	break
+ fi
+ linenum=$((linenum+1))	
+done
 
 
-if [ ! -n "$linenum" ]
+if [ "$foundmatch" = 0 ]
 then
 	echo "${app_name} does not exist in bids-app list!"  >&2 
 	exit 1

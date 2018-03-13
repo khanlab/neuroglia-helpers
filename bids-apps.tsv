@@ -6,6 +6,9 @@ mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 320
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
 prepdwi_0.0.4b	shub://khanlab/prepdwi:0.0.4b	--no-bedpost	2core8gb16h
 prepdwi_0.0.4b_bedpost	shub://khanlab/prepdwi:0.0.4b	--n_cpus 32	Fat
+prepdwi_0.0.5a	shub://khanlab/prepdwi:0.0.5a	--no-bedpost	2core8gb16h
+prepdwi_0.0.5a_bedpost	shub://khanlab/prepdwi:0.0.5a	--n_cpus 32	Fat
 prepdwi_0.0.3e	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.3e.img	--no-bedpost	2core8gb16h
+diffparc-sumo_v0.0.1b	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1b.img
 qsm_sstv_v0.0.1	shub://khanlab/qsm_sstv:v0.0.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs
 mp2rage_correction_v0.0.1	shub://khanlab/mp2rage_correction:v0.0.1		ShortSkinny

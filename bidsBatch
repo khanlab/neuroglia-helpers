@@ -289,7 +289,7 @@ fi
 job_dir=$out_dir/jobs
 mkdir -p $job_dir
 
-job=$job_dir/$app_name.job
+job=$job_dir/$app_name.$level.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
@@ -299,7 +299,7 @@ cp $execpath/job-templates/${job_template}.job $job
 echo "#SBATCH --job-name=$app_name" >> $job
 
 #FIX THIS LATER TO ALLOW FOR  participant1 etc.., group1, group2 ...
-if [ "$level" == "participant" ]
+if [ "$level_part" == "parti" ]
 then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A_%a.out" >> $job
@@ -357,7 +357,7 @@ else
 	jobid=$(echo ${message} | grep -oh "[1-9][0-9]*$")
 fi
 echo "jobid=$jobid" >&2
-exec_job=$job_dir/$app_name.$jobid.job
+exec_job=$job_dir/$app_name.$level.$jobid.job
 
 #copy instance of this job script for provenance
 cp  $job $exec_job

@@ -7,7 +7,7 @@ name=neuroglia_interactive
 if [ ${host:0:3} == "gra" ]
 then
 	echo running on graham
-	salloc -J $name  -D `pwd` --time=1:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf  
+	salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf  
 else
 
 	echo "Please ssh to graham.sharcnet.ca before using $0"

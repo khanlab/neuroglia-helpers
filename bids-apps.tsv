@@ -10,8 +10,6 @@ prepdwi_0.0.5b_probtrack	file:///project/6007967/akhanf/singularity/bids-apps/kh
 prepdwi_0.0.5b_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.5b.img	--n_cpus 8	8core32gb12h
 prepdwi_0.0.6a	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6a.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR	2core8gb16h
 prepdwi_0.0.6a_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6a.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
-prepdwi_0.0.6a_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6a.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	2core8gb16h
-prepdwi_0.0.6a_bedpost_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6a.img --n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	8core32gb12h
 prepdwi_0.0.6b	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6b.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR	2core8gb16h
 prepdwi_0.0.6b_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6b.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
 prepdwi_0.0.6b_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.6b.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	2core8gb16h

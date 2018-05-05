@@ -20,9 +20,9 @@ echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0
 echo "export SINGULARITY_OPTS=\"-e -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch\"" >> ~/.bashrc
 ```
 
-To set-up singularity 2.4 on graham, run the following:
+To set-up singularity 2.5 on graham, run the following:
 ```
-echo "module load singularity/2.4" >> ~/.bashrc
+echo "module load singularity/2.5" >> ~/.bashrc
 ```
 
 ### Setting up your workspace:

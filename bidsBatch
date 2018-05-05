@@ -15,7 +15,8 @@ function usage {
    echo ""
    echo "bidsBatch options:"
    echo ""
-   echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
+   echo " -s <subjid> : single-subject mode, run on a single subject (must be in participants.tsv) instead"
+   echo " -S <subjlist> : subjlist mode, run on a subset of subjects defined by a simple text file (one id per line)"
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo ""
    echo " Required resources:"
@@ -336,9 +337,14 @@ else
 fi
 
 
+if [ -n "$depends" ]
+then
+	dependsopt="--dependency=$depends"
+fi
+
 if [ "$testmode" == 0 ]
 then
-message=`sbatch --dependency=$depends $job`
+message=`sbatch $dependsopt $job`
 
 
 # Extract job identifier from SLURM's message.

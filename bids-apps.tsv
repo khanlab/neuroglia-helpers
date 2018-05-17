@@ -1,4 +1,5 @@
 name	url	base_options	job_template
+fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack
 fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
 fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
 fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 --debug -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor
@@ -14,5 +15,5 @@ prepdwi_0.0.7a_bedpost_7T	file:///project/6007967/akhanf/singularity/bids-apps/k
 diffparc-sumo_v0.0.1c	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1c.img		4core16gb12h
 qsm_sstv_v0.1.0	file:///project/6007967/akhanf/singularity/bids-apps/alankuurstra_qsm_sstv_v0.1.0.img	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs
 mp2rage_correction_v0.0.2	shub://khanlab/mp2rage_correction:v0.0.2		ShortSkinny
-gradcorrect_0.0.1g	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_gradcorrect_0.0.1g.img	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
-freesurfer_v6.0.1-4	file:///project/6007967/akhanf/singularity/bids-apps/bids_freesurfer_v6.0.1-4.img	--license_file /project/6007967/akhanf/opt/freesurfer/.license --n_cpus 8	Regular
+gradcorrect_0.0.1h	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_gradcorrect_0.0.1h.img	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
+freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file /project/6007967/akhanf/opt/freesurfer/.license --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular

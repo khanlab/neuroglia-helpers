@@ -6,6 +6,10 @@ fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}
+prepdwi_0.0.7c	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7c.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
+prepdwi_0.0.7c_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7c.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
+prepdwi_0.0.7c_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7c.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
+prepdwi_0.0.7c_bedpost_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7c.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
 prepdwi_0.0.7b	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7b.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR	2core8gb16h
 prepdwi_0.0.7b_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7b.img	--n_cpus 8 -w $SLURM_TMPDIR	8core32gb12h
 prepdwi_0.0.7b_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7b.img	--no-bedpost --n_cpus 2 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	2core8gb16h

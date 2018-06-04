@@ -13,6 +13,7 @@ then
 		salloc -J $name --x11 -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf
 	else
 		salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf  
+	fi
 else
 
 	echo "Please ssh to graham.sharcnet.ca before using $0"

@@ -10,6 +10,10 @@ prepdwi_0.0.7f	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prep
 prepdwi_0.0.7f_bedpost	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7f.img	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_0.0.7f_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7f.img	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
 prepdwi_0.0.7f_bedpost_7T	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_prepdwi_0.0.7f.img	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_0.0.7g	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
+prepdwi_0.0.7g_bedpost	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR	Regular
+prepdwi_0.0.7g_7T	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_0.0.7g_bedpost_7T	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
 diffparc-sumo_v0.0.1c	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1c.img		4core16gb12h
 qsm_sstv_v0.1.0	file:///project/6007967/akhanf/singularity/bids-apps/alankuurstra_qsm_sstv_v0.1.0.img	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Regular
 mp2rage_correction_v0.0.2	shub://khanlab/mp2rage_correction:v0.0.2		ShortSkinny

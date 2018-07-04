@@ -16,4 +16,4 @@ qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0
 mp2rage_correction_v0.0.1	shub://khanlab/mp2rage_correction:v0.0.1		ShortSkinny
 gradcorrect_0.0.1i	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_gradcorrect_0.0.1i.img	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
 freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file /project/6007967/akhanf/opt/freesurfer/.license --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
-prepT2space_v0.0.1f	shub://khanlab/prepT2space:v0.0.1f		Regular
+prepT2space_v0.0.2b     shub://khanlab/prepT2space:v0.0.2b		Regular

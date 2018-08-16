@@ -11,7 +11,7 @@ prepdwi_0.0.7g	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_T
 prepdwi_0.0.7g_bedpost	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_0.0.7g_7T	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
 prepdwi_0.0.7g_bedpost_7T	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-prepdwi_0.1.37_7T	docker://khanlab/prepdwi:0.1.37	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_0.1.39_7T	docker://khanlab/prepdwi:0.1.39	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
 diffparc-sumo_v0.0.1c	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1c.img		4core16gb12h
 diffparc-sumo_v0.0.1d	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d.img		4core16gb12h
 diffparc-sumo_v0.0.1d_nonorm	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d_nonorm.img		4core16gb12h

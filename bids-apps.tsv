@@ -1,23 +1,23 @@
 name	url	base_options	job_template
-fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
-fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
-fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
-fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
-fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
+fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /home/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
+fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /home/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
+fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /home/akhanf/opt/freesurfer/.license --resource-monitor	Regular
+fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /home/akhanf/opt/freesurfer/.license --resource-monitor	Regular
+fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /home/akhanf/opt/freesurfer/.license --resource-monitor	Regular
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 prepdwi_0.0.7g	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_0.0.7g_bedpost	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR	Regular
-prepdwi_0.0.7g_7T	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-prepdwi_0.0.7g_bedpost_7T	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-prepdwi_0.1.39_7T	docker://khanlab/prepdwi:0.1.39	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-diffparc-sumo_v0.0.1c	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1c.img		4core16gb12h
-diffparc-sumo_v0.0.1d	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d.img		4core16gb12h
-diffparc-sumo_v0.0.1d_nonorm	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d_nonorm.img		4core16gb12h
-diffparc-sumo_v0.0.1d_nonorm_fix	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d_nonorm_fix.img		4core16gb12h
+prepdwi_0.0.7g_7T	shub://khanlab/prepdwi:0.0.7g	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /home/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_0.0.7g_bedpost_7T	shub://khanlab/prepdwi:0.0.7g	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /home/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_0.1.37_7T	docker://khanlab/prepdwi:0.1.37	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /home/akhanf/opt/grad/.coeff_AC84.grad	Regular
+diffparc-sumo_v0.0.1c	file:///scratch/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1c.img		4core16gb12h
+diffparc-sumo_v0.0.1d	file:///scratch/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d.img		4core16gb12h
+diffparc-sumo_v0.0.1d_nonorm	file:///scratch/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d_nonorm.img		4core16gb12h
+diffparc-sumo_v0.0.1d_nonorm_fix	file:///scratch/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1d_nonorm_fix.img		4core16gb12h
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
 mp2rage_correction_v0.0.1	shub://khanlab/mp2rage_correction:v0.0.1		ShortSkinny
-gradcorrect_0.0.1i	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_gradcorrect_0.0.1i.img	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
-freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file /project/6007967/akhanf/opt/freesurfer/.license --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
+gradcorrect_0.0.1i	file:///scratch/akhanf/singularity/bids-apps/khanlab_gradcorrect_0.0.1i.img	--grad_coeff_file /home/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
+freesurfer_v6.0.1-subfields	file:///scratch/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file /home/akhanf/opt/freesurfer/.license --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
 prepT2space_v0.0.2b     shub://khanlab/prepT2space:v0.0.2b		Regular

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --account=rrg-akhanf
+#SBATCH --account=def-akhanf-ab
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16

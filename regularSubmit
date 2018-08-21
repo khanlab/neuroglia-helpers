@@ -31,9 +31,9 @@ function usage {
 }
 
 host=`hostname`
-if [ ! ${host:0:3} = "gra" ]
+if [ ! ${host:0:5} = "cedar" ]
 then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
+	echo "Please ssh to cedar.computecanada.ca before using $0" >&2
 	exit 1
 fi
 

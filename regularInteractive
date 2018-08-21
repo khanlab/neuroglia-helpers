@@ -4,9 +4,9 @@ host=`hostname`
 
 name=neuroglia_interactive
 
-if [ ${host:0:3} == "gra" ]
+if [ ${host:0:5} == "cedar" ]
 then
-	echo running on graham
+	echo running on cedar
 	if [ "$1" == "-Y" ] 
 	then
 		echo using visualization
@@ -16,7 +16,7 @@ then
 	fi
 else
 
-	echo "Please ssh to graham.sharcnet.ca before using $0"
+	echo "Please ssh to cedar.computecanada.ca before using $0"
 	exit -1
 fi
 

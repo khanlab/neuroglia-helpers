@@ -5,6 +5,7 @@ fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --o
 fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
 fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
 fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor	Regular
+mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular

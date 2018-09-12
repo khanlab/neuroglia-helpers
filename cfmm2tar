@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+cfmm2tar_img=`shub-cache shub://khanlab/cfmm2tar:v0.0.1h`
+
+singularity run -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch -B /localscratch:/localscratch $cfmm2tar_img $@

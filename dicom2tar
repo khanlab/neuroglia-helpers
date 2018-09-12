@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+dicom2tar_img=`shub-cache shub://khanlab/dicom2tar:v0.0.5`
+
+singularity run $SINGULARITY_OPTS -B $SCRATCH:/tmp $dicom2tar_img $@

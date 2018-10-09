@@ -21,7 +21,7 @@ fi
 
 url=$1
 
-suff=${url##shub://}
+suff=${url##*://}
 tag=${suff#*:}
 org=${suff%%/*}
 name=${suff#*/}
@@ -29,13 +29,31 @@ name=${name%:*}
 
 bra=master
 
+hub=${url%%://*}
+if [ "$hub" = "docker" ]
+then
+	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.img
+	dlpath=$SINGULARITY_DIR/${name}-${tag}.simg
+elif [ "$hub" = "shub" ]
+then
+	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
+	dlpath=$cached
+else
+	echo "Must use docker:// or shub://"
+	exit 1
+fi
 
-cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
 if [ ! -e $cached ]
 then
 	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
 	export SINGULARITY_CACHEDIR=$SINGULARITY_DIR
+	rm -f $dlpath
 	singularity pull $url >&2 
+	if [ "$?" = 0 ]
+	then
+		mv -v $dlpath $cached 
+	fi
+
 	if [ ! -e $cached ]
 	then
 		echo ERROR: could not pull image >&2

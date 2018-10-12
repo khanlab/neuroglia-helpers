@@ -1,0 +1,3 @@
+#!/bin/bash
+
+singularity run -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch -B /localscratch:/localscratch `shub-cache docker://bids/validator:0.27.10` $@

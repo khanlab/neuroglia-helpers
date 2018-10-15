@@ -1,4 +1,5 @@
 name	url	base_options	job_template
+fmriprep_1.1.8	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
 fmriprep_1.1.4	docker://poldracklab/fmriprep:1.1.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
 fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular
 fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file /project/6007967/akhanf/opt/freesurfer/.license --resource-monitor --notrack	Regular

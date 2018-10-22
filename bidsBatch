@@ -18,6 +18,7 @@ function usage {
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in participants.tsv) instead"
    echo " -S <subjlist> : subjlist mode, run on a subset of subjects defined by a simple text file (one id per line)"
    echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -L <N> : local mode, run jobs locally with N parallel jobs, instead of submitting (do not use on compute canada login node)"
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -66,22 +67,15 @@ app_job_template=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{
 hub=${url%%:*}
 if [ "$hub" = "docker" ]
 then
-  #location for deployed docker images
-  repo=${url#*://}
-  repo=${repo%%/*}
 
-  app=${url##*/}
-  app=${app%:*}
-
-  tag=${url##*:}
-
-  singularity_image=$bids_app_dir/${repo}_${app}_${tag}.img
-if [ ! -e $singularity_image ]
- then 
-	 echo "Singularity image: $singularity_image  not found," >&2 
-	echo "   run deploy_bids-apps first on your local machine" >&2 
-	 exit 1
+  #use shub-cache to download if not exist, and return path to image
+ singularity_image=`shub-cache $url`
+ if [ ! "$?" = 0  -o ! -n "$singularity_image" -o ! -e "$singularity_image"  ]
+ then
+   echo "Failed to pull $url, exiting" >&2
+   exit 1
  fi
+
 
 
 fi
@@ -152,9 +146,10 @@ singlesubj=""
 testmode=0
 subjlist=""
 override_template=0
+runlocal=0
+localscratch="/localscratch" # default for graham
 
-
-while getopts "j:d:s:tS:" options; do
+while getopts "j:d:s:tS:L:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	override_template=1
@@ -167,6 +162,11 @@ while getopts "j:d:s:tS:" options; do
 	singlesubj=$OPTARG;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
+    L ) echo "  Using local mode (run jobs locally instead of submitting)" >&2
+    ncores=$OPTARG
+    localscratch=/tmp
+    SINGULARITY_OPTS="-e -B $localscratch:/scratch"
+    runlocal=1;;
     * ) usage
 	exit 1;;
  esac
@@ -312,13 +312,13 @@ then
 	echo "echo CMD: $bids_dir $out_dir $level --participant_label \$subj $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B /localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
+	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
 	echo "exit \$RETURNVAL" >> $job
 
-	echo -n "		Queuing participant-level job, $depends ... " >&2
+	echo -n "		Creating participant-level job ... " >&2
 else
 	#submit without arrays, for group level
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A.out" >> $job
@@ -326,14 +326,14 @@ else
 	echo "echo CMD:  $bids_dir $out_dir $level $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B /localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
+	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
 	echo "exit \$RETURNVAL" >> $job
 
 	
-	echo -n "		Queuing group-level job, $depends ... " >&2
+	echo -n "		Creating group-level job  ... " >&2
 fi
 
 
@@ -342,8 +342,9 @@ then
 	dependsopt="--dependency=$depends"
 fi
 
-if [ "$testmode" == 0 ]
+if [ "$testmode" == 0 ] && [ "$runlocal" == 0 ]
 then
+echo "Submitting job" >&2 
 message=`sbatch $dependsopt $job`
 
 
@@ -361,10 +362,50 @@ exec_job=$job_dir/$app_name.$level.$jobid.job
 #copy instance of this job script for provenance
 cp  $job $exec_job
 
-else
-	jobid=$RANDOM
-	echo "fake-jobid=$jobid  (test-mode: no jobs submitted)" >&2
+else #either running in testmode or locally
+    if [ "$testmode" == 1 ]
+    then
+	    jobid=$RANDOM
+    	echo "fake-jobid=$jobid  (test-mode: no jobs submitted)" >&2
+    else
+        if [ "$runlocal" == 1 ]
+        then
 
+        popts="--no-notice --verbose --jobs $ncores -u"
+
+        #if no special cases, then make a run script, then run that script
+        if [ ! -n "$subjlist" ]
+        then
+   
+        datestring=`date +%Y-%m-%d_%Hh%Mm`
+        joblist=$job_dir/joblist.local_$datestring.txt
+        if [ "$level_part" == "parti" ]
+        then
+            if [ ! -n "$singlesubj" ]
+            then
+                 seq 1 $N | parallel echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+                 else
+                 echo $indices | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+            fi
+         else
+            #group level:
+           echo "bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.out" > $joblist
+        fi
+
+        else
+            echo "subjlist mode not implemented yet with -L option.." >&2
+            exit 1
+        fi
+       
+        echo "Running jobs locally..." >&2
+        parallel $popts :::: $joblist
+
+
+    fi
+
+    fi
+
+    
 fi
 
 echo "Job and job output stored in: $job_dir" >&2

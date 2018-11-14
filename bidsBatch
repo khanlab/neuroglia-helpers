@@ -233,14 +233,21 @@ then
  exit 1
 fi  
 
+job_dir=$out_dir/code/jobs
+mkdir -p $job_dir
 
 
 list=$bids_dir/participants.tsv
 
 if [ ! -e $list ]
 then
- echo "$list does not exist, quitting!" >&2 
- exit 1
+ list=$job_dir/in_participants.tsv
+ echo "$list does not exist, creating temporary one in $list" >&2 
+ echo "participant_id"> $list
+ pushd $bids_dir
+ ls -d sub-* >> $list
+ popd 
+
 fi
 
 N=`tail -n +2 $list | wc -l`
@@ -291,8 +298,6 @@ else
 	fi
 fi
 
-job_dir=$out_dir/jobs
-mkdir -p $job_dir
 
 job=$job_dir/$app_name.$level.job
 

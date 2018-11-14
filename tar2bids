@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-tar2bids_img=`shub-cache shub://khanlab/tar2bids:v0.0.3`
+tar2bids_img=`shub-cache shub://khanlab/tar2bids:v0.0.3a`
 
 echo "CMD: singularity run $SINGULARITY_OPTS -B /localscratch:/localscratch $tar2bids_img $@"
 singularity run $SINGULARITY_OPTS -B /localscratch:/localscratch $tar2bids_img $@

@@ -27,7 +27,7 @@ diffparc-sumo_v0.0.1d_nonorm_fix	file:///project/6007967/akhanf/singularity/bids
 diffparc-sumo_v0.0.1e	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1e.img		4core16gb12h
 diffparc-sumo_v0.0.1f	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_v0.0.1f.img		4core16gb12h
 diffparc-sumo_v0.0.1g	shub://khanlab/diffparc-sumo:v0.0.1g		4core16gb12h
-diffparc-sumo_v0.0.2_rc	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_dev-2018-12-07-2397486de163.simg		4core16gb12h
+diffparc-sumo_v0.0.2_rc	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_diffparc-sumo_dev-2018-12-07-5e654f0db7e8.simg		4core16gb12h
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
 gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h

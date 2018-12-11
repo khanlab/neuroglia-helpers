@@ -196,12 +196,15 @@ getContainer $app_name
 if [ "$#" -lt 3 ]
 then
 	usage
+	
+	echo "$app_name, built-in default options: $base_opts"
 	echo "Usage for bids app:" >&2
 	if [ -e $singularity_image ]
 	then
 		singularity run $singularity_image
 	fi
 
+	
 	exit 1
 fi
 

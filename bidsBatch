@@ -164,8 +164,12 @@ while getopts "j:d:s:tS:L:" options; do
 	testmode=1;;
     L ) echo "  Using local mode (run jobs locally instead of submitting)" >&2
     ncores=$OPTARG
+    host=`hostname`
+    if [ ! "${host:0:3}" = "gra" ]  #if not running on graham, then:
+    then
     localscratch=/tmp
-    SINGULARITY_OPTS="-e -B $localscratch:/scratch"
+    SINGULARITY_OPTS="$SINGULARITY_OPTS -e -B $localscratch:/scratch"
+    fi
     runlocal=1;;
     * ) usage
 	exit 1;;
@@ -192,12 +196,15 @@ getContainer $app_name
 if [ "$#" -lt 3 ]
 then
 	usage
+	
+	echo "$app_name, built-in default options: $base_opts"
 	echo "Usage for bids app:" >&2
 	if [ -e $singularity_image ]
 	then
 		singularity run $singularity_image
 	fi
 
+	
 	exit 1
 fi
 
@@ -229,14 +236,21 @@ then
  exit 1
 fi  
 
+job_dir=$out_dir/code/jobs
+mkdir -p $job_dir
 
 
 list=$bids_dir/participants.tsv
 
 if [ ! -e $list ]
 then
- echo "$list does not exist, quitting!" >&2 
- exit 1
+ list=$job_dir/in_participants.tsv
+ echo "$list does not exist, creating temporary one in $list" >&2 
+ echo "participant_id"> $list
+ pushd $bids_dir
+ ls -d sub-* >> $list
+ popd 
+
 fi
 
 N=`tail -n +2 $list | wc -l`
@@ -287,8 +301,6 @@ else
 	fi
 fi
 
-job_dir=$out_dir/jobs
-mkdir -p $job_dir
 
 job=$job_dir/$app_name.$level.job
 

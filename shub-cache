@@ -51,7 +51,7 @@ then
 	singularity pull $url >&2 
 	if [ "$?" = 0 ]
 	then
-		mv -v $dlpath $cached 
+		mv -v $dlpath $cached >&2
 	fi
 
 	if [ ! -e $cached ]

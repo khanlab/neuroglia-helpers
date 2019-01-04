@@ -5,9 +5,9 @@ Helper & wrapper scripts for using Singularity images locally and remotely on gr
 Features:
 * wrapper scripts for submitting single and batch jobs using SLURM arrays
 * variants of scripts that use (neuroglia*) and do not use (regular*) singularity
-* scripts for interactive job submission including singularity shell
+* scripts for interactive job submission 
 * BIDS-App support with parallelization over subjects with SLURM arrays
-* Deployment via docker2singularity or singularity-hub
+* Deployment via Singularity (pulling containers from shub://, docker://, or file://)
 
 ## Install:
 
@@ -15,26 +15,33 @@ To set-up neuroglia-helpers on graham, run the following:
 ```
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
 echo "export PATH=~/neuroglia-helpers:\$PATH" >> ~/.bashrc
-echo "export SINGULARITY_DIR=/project/6007967/akhanf/singularity" >> ~/.bashrc
-echo "export SINGULARITY_IMG=\${SINGULARITY_DIR}/khanlab_neuroglia-vasst-dev_0.0.2f.img" >> ~/.bashrc
-echo "export SINGULARITY_OPTS=\"-e -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch\"" >> ~/.bashrc
+echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bashrc
+echo "module load singularity" >> ~/.bashrc
 ```
 
-To set-up singularity 2.5 on graham, run the following:
-```
-echo "module load singularity/2.5" >> ~/.bashrc
-```
+## Configuration
 
-### Setting up your workspace:
+The `00_init.sh` script contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
 
-Compute Canada does not allow any GUI (X) applications to be run, even in interactive mode. The best way to run these applications is from your local workstation, using sshfs to mount your folder on graham, (and optionally passwordless ssh to allow for easier access). Use the setup_* scripts to configure your local system. Once your sshfs mount is created, you can use that for visualizing your data, running stats, etc., latency is reasonable as long as data is not too big (i.e. GB's)
+## Job templates
+
+The wrappers make use of the job templates to define resources for submitted jobs, e.g. the number of CPUs, size of memory, and length of time. The predefined job templates are designed based on the size of Compute Canada (graham cluster) nodes and queues to make optimal use of the resources. You should use the template that best fits your job type. The `Regular` job type is default in most cases (8core, 32gb, 24hrs), but the full list of job templates can be found by using the `-J` option with any wrapper.
 
 ## BIDS Apps:
 
 The bidsBatch wrapper uses SLURM to parallelize over *subjects*, and by default will run a job for every subject in your participants.tsv file. 
-bidsBatch uses SLURM Arrays, so it groups all the different jobs under a single job ID, with each array job indicated as <jobid>_<index>.
+bidsBatch uses SLURM Arrays, so it groups all the different jobs under a single job ID, with each array job indicated as `<jobid>_<index>`.
 
-Running bidsBatch lists the usage and displays bids-apps that are deployed on the system (contents of bids-apps.tsv).  For default app options, please also see the bids-apps.tsv file.  Note: when you run bidsBatch to process a dataset, a ```jobs/``` folder is created in the output directory you specify.
+
+Each deployed BIDS app has a name (unique identifier), a URI (location of the container), default options, and default job template. These are all stored in the `bids-apps.tsv` file. Each line is a different deployment, which may use the same container (URI) as another deployement, but e.g. with different default options and/or job templates.
+
+The list of BIDS app names is given when you run `bidsBatch`.
+
+To get a list of names for all BIDS apps deployed, along with URI and default job template, use `bidsBatch -B`.
+
+To get usage information for a particular BIDS app, use `bidsBatch <app_name>`. This will also display the default options for that deployment.
+
+Note: when you run bidsBatch to process a dataset located at `BIDS_DIR`, a `BIDS_DIR/code/jobs` folder is created containing the SLURM log files.
 
 
 ### Example: Running fmriprep on your bids dataset
@@ -49,15 +56,11 @@ bidsBatch fmriprep_1.0.4
 
 
 
+
+
 ## Wrappers:
 
-Wrappers for singularity that make use of the following environment variables in your environment (set in .bashrc):
-```
-SINGULARITY_DIR=<path to folder containing singularity images>
-SINGULARITY_IMG=<path to default (neuroglia) singularity container>
-SINGULARITY_OPTS=<options for singularity, e.g. path binding>
-```
-
+Wrappers for singularity and job submission that make use of the neuroglia configuration.
 
 * neuroglia
 
@@ -67,49 +70,26 @@ Simple wrapper for singularity exec (does not submit a job)
 
 Simple wrapper for singularity shell (does not submit a job)
 
-* neurogliaInteractive
+* neurogliaSubmit
 
-Wrapper for submitting an interactive cluster job, using a singularity container
-Note: interactive job default is 1hour, 8cores, 32GB memory
+Creates and submits a singularity exec job, e.g.: `neurogliaSubmit bet t1.nii` will submit a job to perform bet skull stripping.
+Enter `neurogliaSubmit` for more details.
 
 * neurogliaBatch
 
-Wrapper for submitting batch cluster jobs, using a singularity container
+Wrapper for submitting batch cluster jobs, using a singularity container, looping through a subject list. User provides the command to run, and the arguments that come before and after the subjid.  Enter `neurogliaBatch` for more details.
 
-```
-==========================================================================
-Interface for running pipeline scripts on the cluster with singularity
+* regularSubmit, regularBatch
 
-  Loops through an input subject_list_txt (txt with subj id on each line)
-  Can be used to run scripts that generally take command-line parameters as:
+These are the analogous to neurogliaSubmit and neurogliaBatch, but run the commands directly and do not use `singularity exec`.
 
-  <script_name> <before args (optional)> <subjid (required)> <after args (optional)>
+* regularInteractive
 
---------------------------------------------------------------------------
-Usage: neurogliaBatch  <script_name>  <subject_list_txt>  <optional flags> 
---------------------------------------------------------------------------
+Wrapper for submitting an interactive cluster job, this gives you command-line access to a compute node terminal for a short period of time (up to 3 hours), to run jobs directly. Remember that you are not supposed to run any jobs directly on the *login* nodes. 
 
-optional flags:
+Note: interactive job default is 3hours, 8cores, 32GB memory
 
- -g : group/reduce job, pass the subject list instead of looping over subjects
- -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead
- -t : test-mode, don/'t actually submit any jobs
-
- Required resources:
- -j <job-template> :  sets requested resources
-	Regular (default):	8core/32gb/24h
-	LongSkinny:		1core/4gb/72h
-	ShortFat:		32core/128gb/3h
-
- Passing arguments to pipeline script
-  -b /args/ : cmd-line arguments that go *before* the subject id
-  -a /args/ : cmd-line arguments that go *after* the subject id
-
- SLURM Job dependencies for pipelining (man sbatch for more details):
-  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids
-  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id
-```
-
+With `regularInteractive` you can also run GUI applications from Compute Canada, if you use `ssh -Y` when connecting to graham.
 
 
 

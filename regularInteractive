@@ -1,22 +1,31 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source $execpath/00_init.sh
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
 host=`hostname`
 
 name=neuroglia_interactive
+cpu=8
+hours=3
+mem=32000
 
-if [ ${host:0:3} == "gra" ]
+echo "Requesting interactive job with $cpu CPUs, $mem mb memory, for maximum of $hours hours ..."
+echo "Please wait until you are granted a job allocation..."
+if [ "$1" == "-Y" ] 
 then
-	echo running on graham
-	if [ "$1" == "-Y" ] 
-	then
-		echo using visualization
-		salloc -J $name --x11 -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf
-	else
-		salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf  
-	fi
+	echo using visualization
+	salloc -J $name --x11 -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpu --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
 else
-
-	echo "Please ssh to graham.sharcnet.ca before using $0"
-	exit -1
+	salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpu --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC  
 fi
 

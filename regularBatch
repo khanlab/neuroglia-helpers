@@ -1,11 +1,14 @@
 #!/bin/bash
-host=`hostname`
-if [ ! ${host:0:3} == "gra" ]
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+source $execpath/00_init.sh
+if [ ! "$?" = 0 ]
 then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
+	echo "Error initializing neuroglia-helpers, quitting $0"
 	exit 1
 fi
-
 
 
 #run a pipeline job on the cluster
@@ -14,10 +17,8 @@ fi
 cmd=$0
 cmdname=${cmd##*/}
 
-
-if [ "$#" -lt 2 ]
-then 
-   echo""
+function usage {
+   echo ""
    echo "=========================================================================="
    echo "Interface for running pipeline scripts on the cluster "
    echo ""
@@ -35,25 +36,30 @@ then
    echo " -g : group/reduce job, pass the subject list instead of looping over subjects"
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
    echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
    echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
-   echo ""
-   echo " Passing arguments to pipeline script"
-   echo "  -b /"args/" : cmd-line arguments that go *before* the subject id"
-   echo "  -a /"args/" : cmd-line arguments that go *after* the subject id"
-   echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
+   usage_batch_before_after
+   usage_job_templates
+   usage_job_depends
+}
 
-  exit 1
+#get options in front 
+while getopts "J" options; do
+ case $options in
+    J ) print_job_templates
+	exit 1;;
+    * ) usage
+	exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -lt 2 ]
+then 
+	usage
+	exit 1
 fi
-
 
 output_dir=`realpath $PWD`
 
@@ -68,12 +74,15 @@ depends=""
 group=0
 singlesubj=""
 testmode=0
+cc_account=$CC_COMPUTE_ALLOC
 
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
 
-while getopts "b:a:j:d:gs:t" options; do
+while getopts "Jb:a:j:d:gs:tA:" options; do
  case $options in
+    J ) print_job_templates
+	exit 1;;
     b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
 	before_args=$OPTARG;;
     a ) echo "	Setting arguments after subjid:  $OPTARG" >&2
@@ -88,6 +97,9 @@ while getopts "b:a:j:d:gs:t" options; do
 	group=1;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
+
     * ) usage
 	exit 1;;
  esac
@@ -136,12 +148,10 @@ mkdir -p $job_dir
 
 job=$job_dir/$scriptname.job
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
 cp $execpath/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$scriptname" >> $job
-
+echo "#SBATCH --account=$cc_account" >> $job
 
 if [ "$group" == 0 ]
 then

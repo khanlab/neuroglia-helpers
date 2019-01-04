@@ -17,6 +17,7 @@ then
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -e : preserve environment variables (--export=ALL to sbatch)"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -41,8 +42,9 @@ job_template=Regular
 depends=""
 testmode=0
 keepenv=0
+cc_account=$CC_COMPUTE_ALLOC
 
-while getopts "j:td:e" options; do
+while getopts "j:td:eA:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -52,6 +54,9 @@ while getopts "j:td:e" options; do
 	testmode=1;; 
     e ) echo "	Preserve environment (--export=ALL)" >&2
 	keepenv=1;;
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
+
     * ) usage
 	exit 1;;
  esac
@@ -80,6 +85,7 @@ execpath=`realpath $execpath`
 cp $execpath/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$jobname" >> $job
+echo "#SBATCH --account=$cc_account" >> $job
 
 #submit with array, using subj and subjlist, indexed by line number (1-N)
 echo "#SBATCH --output=$job_dir/${jobname}.%A_%a.out" >> $job

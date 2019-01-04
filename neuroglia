@@ -1,22 +1,26 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source $execpath/00_init.sh
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
 if [ -n "$SINGULARITY_IMG" ]
 then
-	echo "Using env: $SINGULARITY_IMG"
-else
-	echo "SINGULARITY_IMG not defined! exiting..."
-	exit -1
+  SINGULARITY_IMG=`shub-cache $NEUROGLIA_URI`
+  if [ ! "$?" = 0 ]
+  then
+    echo "error loading $NEUROGLIA_URI, exiting!"
+    exit 
+  fi
 fi
-
-if [ -n "$SINGULARITY_OPTS" ]
-then
-	echo "Using opts: $SINGULARITY_OPTS"
-else
-	echo "Warning: SINGULARITY_OPTS not defined!"
-fi
-
-
-
 
 
 singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@

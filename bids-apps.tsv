@@ -12,6 +12,10 @@ mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 320
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
+prepdwi_v0.0.12	docker://khanlab/prepdwi:v0.0.12	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
+prepdwi_v0.0.12_bedpost	docker://khanlab/prepdwi:v0.0.12	--n_cpus 8 -w $SLURM_TMPDIR	Regular
+prepdwi_v0.0.12_7T	docker://khanlab/prepdwi:v0.0.12	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_v0.0.12_bedpost_7T	docker://khanlab/prepdwi:v0.0.12	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
 prepdwi_v0.0.11b	docker://khanlab/prepdwi:v0.0.11b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.11b_bedpost	docker://khanlab/prepdwi:v0.0.11b	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_v0.0.11b_7T	docker://khanlab/prepdwi:v0.0.11b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular

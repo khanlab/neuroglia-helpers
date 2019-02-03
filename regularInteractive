@@ -10,9 +10,9 @@ then
 	if [ "$1" == "-Y" ] 
 	then
 		echo using visualization
-		salloc -J $name --x11 -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf
+		salloc -J $name --x11 -D `pwd` --time=3:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --account=rrg-akhanf
 	else
-		salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=rrg-akhanf  
+		salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --account=rrg-akhanf  
 	fi
 else
 

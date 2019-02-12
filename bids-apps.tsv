@@ -25,6 +25,7 @@ diffparc-sumo_v0.0.2	docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
 diffparc-sumo_dev	docker://khanlab/diffparc-sumo:latest		4core16gb12h
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
+gradcorrect_v0.0.2c	docker://khanlab/gradcorrect:v0.0.2c	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
 gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
 freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file /project/6007967/akhanf/opt/freesurfer/.license --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
 prepT2space_v0.0.2b	shub://khanlab/prepT2space:v0.0.2b		Regular

@@ -151,7 +151,10 @@ then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
-	
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
@@ -170,6 +173,10 @@ then
 else
 	#submit without arrays, using subjlist
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job

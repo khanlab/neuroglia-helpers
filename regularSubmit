@@ -105,6 +105,12 @@ cp $execpath/job-templates/${job_template}.job $job
 
 echo "#SBATCH --job-name=$cmdname" >> $job
 echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
+
+
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job

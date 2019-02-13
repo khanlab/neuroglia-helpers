@@ -1,8 +1,7 @@
 #!/bin/bash
 
+function usage {
 
-if [ "$#" -lt 1 ]
-then 
    echo""
    echo "=========================================================================="
    echo "Interface for running list of jobs on cluster"
@@ -17,6 +16,7 @@ then
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -e : preserve environment variables (--export=ALL to sbatch)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -29,6 +29,13 @@ then
    echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
    echo ""
 
+
+
+}
+
+if [ "$#" -lt 1 ]
+then 
+  usage
   exit 1
 fi
 
@@ -41,8 +48,9 @@ job_template=Regular
 depends=""
 testmode=0
 keepenv=0
+envscript=
 
-while getopts "j:td:e" options; do
+while getopts "j:td:eE:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -52,7 +60,9 @@ while getopts "j:td:e" options; do
 	testmode=1;; 
     e ) echo "	Preserve environment (--export=ALL)" >&2
 	keepenv=1;;
-    * ) usage
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
+   * ) usage
 	exit 1;;
  esac
 done
@@ -84,6 +94,11 @@ echo "#SBATCH --job-name=$jobname" >> $job
 #submit with array, using subj and subjlist, indexed by line number (1-N)
 echo "#SBATCH --output=$job_dir/${jobname}.%A_%a.out" >> $job
 echo "#SBATCH --array=$indices" >> $job
+
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
 
 echo "cmd=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $joblist`  | tail -n 1\`" >> $job
 echo cd `pwd` >> $job

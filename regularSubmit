@@ -14,6 +14,8 @@ function usage {
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -n : ninja-mode, delete job file and hide command in log file (for passwords in getDicomTgz)"
+   echo " -E <env_script>:  script to source for env setup"
+   echo ""
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -56,7 +58,7 @@ ninja=0
 
 output_dir=`realpath $PWD`
 
-while getopts "j:d:tWnN:" options; do
+while getopts "j:d:tWnN:E:" options; do
  case $options in
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
@@ -70,6 +72,8 @@ while getopts "j:d:tWnN:" options; do
 	ninja=1;;
     N ) echo "	Using job name: $OPTARG" >&2
 	cmdname=$OPTARG;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac

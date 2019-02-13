@@ -35,6 +35,7 @@ then
    echo " -g : group/reduce job, pass the subject list instead of looping over subjects"
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
    echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
    echo " Required resources:"
    echo " -j <job-template> :  sets requested resources"
@@ -72,7 +73,7 @@ testmode=0
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
 
-while getopts "b:a:j:d:gs:t" options; do
+while getopts "b:a:j:d:gs:tE:" options; do
  case $options in
     b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
 	before_args=$OPTARG;;
@@ -88,6 +89,8 @@ while getopts "b:a:j:d:gs:t" options; do
 	group=1;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac

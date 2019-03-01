@@ -11,6 +11,13 @@ then
 	then
 		echo using visualization
 		salloc -J $name --x11 -D `pwd` --time=3:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --account=rrg-akhanf
+	
+	elif [ "$1" == "-gpu" ]
+	then
+		# Uses account def-akhanf-ab_gpu
+		echo using gpu
+		salloc -J $name -D `pwd` --time=3:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --gres=gpu:1 --account=def-akhanf-ab_gpu
+	
 	else
 		salloc -J $name  -D `pwd` --time=3:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --account=rrg-akhanf  
 	fi

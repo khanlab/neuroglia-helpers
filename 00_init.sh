@@ -1,29 +1,22 @@
-CC_COMPUTE_ALLOC=rrg-akhanf #for compute resources
-CC_STORAGE_ALLOC=rrg-akhanf  #for singularity image storage
+#!/bin/bash
 
-SINGULARITY_OPTS="-e -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch -B /localscratch:/localscratch"
-NEUROGLIA_URI="shub://akhanf/vasst-dev:v0.0.4g"
+export NEUROGLIA_DIR=$(dirname `realpath $BASH_SOURCE`)
 
+export PATH=${NEUROGLIA_DIR}/bin:$PATH
+export NEUROGLIA_BASH_LIB=$NEUROGLIA_DIR/etc/bash_lib.sh
 
-USER_STORAGE=$HOME/projects/$CC_STORAGE_ALLOC/$USER
-SINGULARITY_DIR=$USER_STORAGE/singularity
-if [ ! -e $USER_STORAGE ]
-then
- echo "Project space storage folder, $USER_STORAGE does not exist, is $CC_STORAGE_ALLOC the correct allocation?"
- exit 1
-fi
+set -a
+source $NEUROGLIA_DIR/cfg/graham.cfg
+set +a
 
 #make SINGULARITY_DIR if it doesn't exist
 if [ ! -e $SINGULARITY_DIR ]
 then
 	mkdir -p $SINGULARITY_DIR 
-fi
 
-if [ ! "$?" = 0 -o ! -e $SINGULARITY_DIR ]
-then
-	echo "Unable to set local SINGULARITY_DIR to $SINGULARITY_DIR"
-	exit 1
-fi
+	if [ ! "$?" = 0 -o ! -e $SINGULARITY_DIR ]
+	then
+		echo "neuroglia-helpers init error:  Unable to set local SINGULARITY_DIR to $SINGULARITY_DIR"
+	fi
 
-#source other helpers
-source $(dirname $0)/01_utils.sh
+fi

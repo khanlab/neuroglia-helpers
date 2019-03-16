@@ -4,7 +4,7 @@ execpath=`dirname $0`
 execpath=`realpath $execpath`
 
 
-source $execpath/00_init.sh
+source ${NEUROGLIA_BASH_LIB}
 if [ ! "$?" = 0 ]
 then
 	echo "Error initializing neuroglia-helpers, quitting $0"
@@ -23,4 +23,4 @@ then
 fi
 
 
-singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $@
+singularity shell $SINGULARITY_OPTS $SINGULARITY_IMG $@

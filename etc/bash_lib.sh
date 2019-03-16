@@ -2,9 +2,6 @@
 
 # various functions for printing usage and job/app lists
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-
 function usage_batch_before_after {
    echo " Passing arguments to pipeline script:"
    echo "  -b /"args/" : cmd-line arguments that go *before* the subject id"
@@ -38,7 +35,7 @@ function print_job_templates {
 function _print_job_templates {
 
 
-job_template_dir=$execpath/job-templates
+job_template_dir=$NEUROGLIA_DIR/job-templates
 
 #want to print out full listing of job templates
 echo "job-template ncpus mem_mb time"
@@ -64,14 +61,14 @@ done
 
 function print_app_list_names {
 
-	app_list=$execpath/bids-apps.tsv
+	app_list=$NEUROGLIA_DIR/bids-apps.tsv
 	nlines=`cat $app_list | wc -l`
 	tail -n $((nlines-1)) $app_list | awk -F '\t' '{print $1}' | column -c 150
 }
 
 function print_app_list_long {
 
-	app_list=$execpath/bids-apps.tsv
+	app_list=$NEUROGLIA_DIR/bids-apps.tsv
 	cat $app_list | awk -F '\t' '{print $1 "\t"  $2  "\t" $4 }' | column -t
 
 }

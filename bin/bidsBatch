@@ -4,7 +4,7 @@ execpath=`dirname $0`
 execpath=`realpath $execpath`
 
 
-source $execpath/00_init.sh
+source ${NEUROGLIA_BASH_LIB}
 if [ ! "$?" = 0 ]
 then
 	echo "Error initializing neuroglia-helpers, quitting $0"
@@ -124,7 +124,7 @@ fi
 }
 
 
-app_list=$execpath/bids-apps.tsv
+app_list=$NEUROGLIA_DIR/bids-apps.tsv
 
 if [ ! -n "$SINGULARITY_OPTS" ]
 then

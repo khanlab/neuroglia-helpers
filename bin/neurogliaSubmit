@@ -3,7 +3,8 @@
 execpath=`dirname $0`
 execpath=`realpath $execpath`
 
-source $execpath/00_init.sh
+
+source ${NEUROGLIA_BASH_LIB}
 if [ ! "$?" = 0 ]
 then
 	echo "Error initializing neuroglia-helpers, quitting $0"
@@ -24,7 +25,11 @@ function usage {
    echo "optional flags:"
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
-   echo " -n : ninja-mode, delete job file and hide command in log file (for passwords in getDicomTgz)"
+   echo " -n : ninja-mode, delete job file and hide command in log file"
+   echo " -r : run-mode, use singularity run instead of singularity exec"
+   echo " -U <uri> : uri for singularity container to use (default: $NEUROGLIA_URI)"
+   echo " -I <simg> : path to container to use (default: `shub-cache $NEUROGLIA_URI`)"
+   echo " -N <name> : name the batch job (default: name is command with path stripped off)"
    echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
    echo ""
    usage_job_templates
@@ -35,6 +40,9 @@ function usage {
 
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
+cmd=$0
+cmdname=${cmd##*/}
+
 
 if [ "$#" -lt 1 ]
 then 
@@ -47,11 +55,13 @@ depends=""
 testmode=0
 enable_wait=0
 ninja=0
-cc_account=$CC_COMPUTE_ALLOC
-scriptname=
+scmd="exec"
+uri=$NEUROGLIA_URI
+SINGULARITY_IMG=
 output_dir=`realpath $PWD`
+scriptname=
 
-while getopts "Jj:d:tWnN:A:" options; do
+while getopts "Jj:d:tWnrN:I:A:U:" options; do
  case $options in
     J ) print_job_templates
 	exit 1;;
@@ -65,11 +75,16 @@ while getopts "Jj:d:tWnN:A:" options; do
 	enable_wait=1;;
     n ) echo "  Using ninja mode" >&2
 	ninja=1;;
+    r ) echo "  Run instead of exec" >&2
+	scmd="run";;
     N ) echo "	Using job name: $OPTARG" >&2
 	scriptname=$OPTARG;;
+    I ) echo "	Using SINGULARITY_IMG: $OPTARG" >&2
+	SINGULARITY_IMG=$OPTARG;;
+    U ) echo "  Using singlarity image uri: $OPTARG" >&2
+	uri=$OPTARG;;
     A ) echo "	Using allocation account: $OPTARG" >&2
 	    cc_account=$OPTARG;;
-
     * ) usage
 	exit 1;;
  esac
@@ -88,16 +103,29 @@ fi
 
 echo $scriptname >&2
 
+if [ -n "$SINGULARITY_IMG" ]
+then
+  SINGULARITY_IMG=`shub-cache $uri`
+  if [ ! "$?" = 0 ]
+  then
+    echo "error loading $uri, exiting!"
+    exit 
+  fi
+fi
+
 job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
 job=$job_dir/$scriptname.job
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
 cp $execpath/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$cmdname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job
 echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
+echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -105,9 +133,12 @@ else
 echo "echo CMD: $@" >>$job
 fi
 echo "echo START_TIME: \`date\`" >>$job
+echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
+echo "mkdir -p \$SCRATCH_DIR" >> $job
 echo cd `pwd` >> $job
-echo $@ >> $job
+echo singularity $scmd $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
 echo "RETURNVAL=\$?" >> $job
+echo "rm -rf \$SCRATCH_DIR" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job
 echo "echo END_TIME: \`date\`" >>$job
 echo "exit \$RETURNVAL" >> $job

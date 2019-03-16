@@ -5,7 +5,7 @@ execpath=`dirname $0`
 execpath=`realpath $execpath`
 
 
-source $execpath/00_init.sh
+source ${NEUROGLIA_BASH_LIB}
 if [ ! "$?" = 0 ]
 then
 	echo "Error initializing neuroglia-helpers, quitting $0"

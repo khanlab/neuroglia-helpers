@@ -14,14 +14,13 @@ Features:
 To set-up neuroglia-helpers on graham, run the following:
 ```
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
-echo "export PATH=~/neuroglia-helpers:\$PATH" >> ~/.bashrc
 echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bashrc
 echo "module load singularity" >> ~/.bashrc
 ```
 
 ## Configuration
 
-The `00_init.sh` script contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
+The `init/00_init.sh` script contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
 
 ## Job templates
 

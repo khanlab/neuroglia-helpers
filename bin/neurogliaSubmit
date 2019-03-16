@@ -120,7 +120,7 @@ job=$job_dir/$scriptname.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$cmdname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job

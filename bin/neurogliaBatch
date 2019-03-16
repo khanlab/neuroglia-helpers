@@ -186,7 +186,7 @@ mkdir -p $job_dir
 
 job=$job_dir/$scriptname.job
 
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$scriptname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job

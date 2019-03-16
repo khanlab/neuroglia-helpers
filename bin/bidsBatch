@@ -315,7 +315,7 @@ job=$job_dir/$app_name.$level.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 
 echo "#SBATCH --job-name=$app_name" >> $job

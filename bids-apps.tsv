@@ -1,30 +1,30 @@
 name	url	base_options	job_template
-fmriprep_1.1.8	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin /project/6007967/akhanf/opt/fmriprep_multiproc_8c_32gb.yaml -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.1.8_noFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin /project/6007967/akhanf/opt/fmriprep_multiproc_8c_32gb.yaml -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack --fs-no-reconall	8core32gb12h
-fmriprep_1.1.8_withFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin /project/6007967/akhanf/opt/fmriprep_multiproc_8c_32gb.yaml -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Long
-fmriprep_1.1.4	docker://poldracklab/fmriprep:1.1.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
-fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
-fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
-mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
-mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
-mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
-mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
+fmriprep_1.1.8	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
+fmriprep_1.1.8_noFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack --fs-no-reconall	8core32gb12h
+fmriprep_1.1.8_withFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Long
+fmriprep_1.1.4	docker://poldracklab/fmriprep:1.1.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
+fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
+fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
+fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
+fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
+fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${JOB_SCRATCH_DIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
+mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 32000 -w ${JOB_SCRATCH_DIR}	Regular
+mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w ${JOB_SCRATCH_DIR}	Regular
+mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w ${JOB_SCRATCH_DIR}	Regular
+mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w ${JOB_SCRATCH_DIR}	Regular
 prepdwi_v0.0.11b	docker://khanlab/prepdwi:v0.0.11b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.11b_bedpost	docker://khanlab/prepdwi:v0.0.11b	--n_cpus 8 -w $SLURM_TMPDIR	Regular
-prepdwi_v0.0.11b_7T	docker://khanlab/prepdwi:v0.0.11b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-prepdwi_v0.0.11b_bedpost_7T	docker://khanlab/prepdwi:v0.0.11b	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_v0.0.11b_7T	docker://khanlab/prepdwi:v0.0.11b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
+prepdwi_v0.0.11b_bedpost_7T	docker://khanlab/prepdwi:v0.0.11b	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 prepdwi_v0.0.11	docker://khanlab/prepdwi:v0.0.11	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.11_bedpost	docker://khanlab/prepdwi:v0.0.11	--n_cpus 8 -w $SLURM_TMPDIR	Regular
-prepdwi_v0.0.11_7T	docker://khanlab/prepdwi:v0.0.11	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
-prepdwi_v0.0.11_bedpost_7T	docker://khanlab/prepdwi:v0.0.11	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	Regular
+prepdwi_v0.0.11_7T	docker://khanlab/prepdwi:v0.0.11	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
+prepdwi_v0.0.11_bedpost_7T	docker://khanlab/prepdwi:v0.0.11	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 diffparc-sumo_v0.0.2	docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
 diffparc-sumo_dev	docker://khanlab/diffparc-sumo:latest		4core16gb12h
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
-gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file /project/6007967/akhanf/opt/grad/.coeff_AC84.grad	4core16gb12h
+gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
 freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file ${FS_LICENSE_FILE} --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
 prepT2space_v0.0.2b	shub://khanlab/prepT2space:v0.0.2b		Regular
-beast_v0.0.2	docker://khanlab/beast:v0.0.2	--BEAST_PATH /project/6007967/xiaobird/beast	ShortSkinny
+beast_v0.0.2	docker://khanlab/beast:v0.0.2	--BEAST_PATH ${BEAST_PATH}	ShortSkinny

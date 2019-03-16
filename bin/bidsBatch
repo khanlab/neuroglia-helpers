@@ -393,7 +393,7 @@ else #either running in testmode or locally
         if [ "$runlocal" == 1 ]
         then
 
-        popts="--no-notice --verbose --jobs $ncores -u"
+        popts="--no-notice --verbose --jobs $ncores --line-buffer "
 
         #if no special cases, then make a run script, then run that script
         if [ ! -n "$subjlist" ]
@@ -405,13 +405,13 @@ else #either running in testmode or locally
         then
             if [ ! -n "$singlesubj" ]
             then
-                 seq 1 $N | parallel echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+                 seq 1 $N | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\>\&1 \| tee $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
                  else
-                 echo $indices | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+                 echo $indices | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\>\&1 \| tee  $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
             fi
          else
             #group level:
-           echo "bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.out" > $joblist
+           echo "bash $job 2\>\&1 \| tee  $job_dir/${app_name}.$level.local_$datestring.out" > $joblist
         fi
 
         else

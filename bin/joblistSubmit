@@ -13,6 +13,7 @@ fi
 
 
 function usage {
+
    echo""
    echo "=========================================================================="
    echo "Interface for running list of jobs on cluster"
@@ -28,6 +29,7 @@ function usage {
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -e : preserve environment variables (--export=ALL to sbatch)"
    echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
    usage_job_templates
    usage_job_depends
@@ -63,12 +65,12 @@ depends=""
 testmode=0
 keepenv=0
 cc_account=$CC_COMPUTE_ALLOC
+envscript=
 
-while getopts "Jj:td:eA:" options; do
+while getopts "Jj:td:eA:E:" options; do
  case $options in
     J ) print_job_templates
 	exit 1;;
-
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
@@ -79,8 +81,9 @@ while getopts "Jj:td:eA:" options; do
 	keepenv=1;;
     A ) echo "	Using allocation account: $OPTARG" >&2
 	    cc_account=$OPTARG;;
-
-    * ) usage
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
+   * ) usage
 	exit 1;;
  esac
 done
@@ -113,6 +116,11 @@ echo "#SBATCH --account=$cc_account" >> $job
 #submit with array, using subj and subjlist, indexed by line number (1-N)
 echo "#SBATCH --output=$job_dir/${jobname}.%A_%a.out" >> $job
 echo "#SBATCH --array=$indices" >> $job
+
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
 
 echo "cmd=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $joblist`  | tail -n 1\`" >> $job
 echo cd `pwd` >> $job

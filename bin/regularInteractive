@@ -1,17 +1,5 @@
 #!/bin/bash
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-
-
-source ${NEUROGLIA_BASH_LIB}
-if [ ! "$?" = 0 ]
-then
-	echo "Error initializing neuroglia-helpers, quitting $0"
-	exit 1
-fi
-
-
 host=`hostname`
 
 name=neuroglia_interactive
@@ -21,11 +9,27 @@ mem=32000
 
 echo "Requesting interactive job with $cpu CPUs, $mem mb memory, for maximum of $hours hours ..."
 echo "Please wait until you are granted a job allocation..."
-if [ "$1" == "-Y" ] 
+
+if [ ${host:0:3} == "gra" ]
 then
-	echo using visualization
-	salloc -J $name --x11 -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpu --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
+	echo running on graham
+	if [ "$1" == "-Y" ] 
+	then
+		echo using visualization
+		salloc -J $name --x11 -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
+	
+	elif [ "$1" == "-gpu" ]
+	then
+		# Uses account $CC_GPU_ALLOC
+		echo using gpu
+		salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --gres=gpu:1 --account=$CC_GPU_ALLOC
+	
+	else
+		salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC  
+	fi
 else
-	salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpu --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC  
+
+	echo "Please ssh to graham.sharcnet.ca before using $0"
+	exit -1
 fi
 

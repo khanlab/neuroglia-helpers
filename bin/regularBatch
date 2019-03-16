@@ -37,6 +37,7 @@ function usage {
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
    usage_batch_before_after
    usage_job_templates
@@ -75,11 +76,12 @@ group=0
 singlesubj=""
 testmode=0
 cc_account=$CC_COMPUTE_ALLOC
+envscript=
 
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
 
-while getopts "Jb:a:j:d:gs:tA:" options; do
+while getopts "Jb:a:j:d:gs:tA:E:" options; do
  case $options in
     J ) print_job_templates
 	exit 1;;
@@ -98,8 +100,9 @@ while getopts "Jb:a:j:d:gs:tA:" options; do
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
     A ) echo "	Using allocation account: $OPTARG" >&2
-	    cc_account=$OPTARG;;
-
+        cc_account=$OPTARG;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -158,7 +161,10 @@ then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
-	
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
@@ -177,6 +183,10 @@ then
 else
 	#submit without arrays, using subjlist
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job

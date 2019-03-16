@@ -26,6 +26,8 @@ function usage {
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -n : ninja-mode, delete job file and hide command in log file (for passwords in getDicomTgz)"
    echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
+   echo ""
    echo ""
    usage_job_templates
    usage_job_depends
@@ -50,8 +52,9 @@ ninja=0
 cc_account=$CC_COMPUTE_ALLOC
 scriptname=
 output_dir=`realpath $PWD`
+envscript=
 
-while getopts "Jj:d:tWnN:A:" options; do
+while getopts "Jj:d:tWnN:A:E:" options; do
  case $options in
     J ) print_job_templates
 	exit 1;;
@@ -69,7 +72,8 @@ while getopts "Jj:d:tWnN:A:" options; do
 	scriptname=$OPTARG;;
     A ) echo "	Using allocation account: $OPTARG" >&2
 	    cc_account=$OPTARG;;
-
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -98,6 +102,12 @@ cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job
 echo "#SBATCH --job-name=$scriptname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job
 echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
+
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job

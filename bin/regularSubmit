@@ -18,7 +18,7 @@ function usage {
    echo "Interface for submitting a single cluster job with singularity"
    echo ""
    echo "--------------------------------------------------------------------------"
-   echo "Usage: $cmdname <optional flags>  <command to run>"
+   echo "Usage: $scriptname <optional flags>  <command to run>"
    echo "--------------------------------------------------------------------------"
    echo ""
    echo "optional flags:"
@@ -95,9 +95,9 @@ job=$job_dir/$scriptname.job
 
 cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
-echo "#SBATCH --job-name=$cmdname" >> $job
+echo "#SBATCH --job-name=$scriptname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job
-echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
+echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -133,7 +133,7 @@ else
 	jobid=$(echo ${message} | grep -oh "[1-9][0-9]*$")
 fi
 echo "jobid=$jobid" >&2
-exec_job=$job_dir/$cmdname.$jobid.job
+exec_job=$job_dir/$scriptname.$jobid.job
 
 
 if [ "$ninja" = 0 ]

@@ -7,7 +7,7 @@ cpus=8
 hours=3
 mem=32000
 
-echo "Requesting interactive job with $cpu CPUs, $mem mb memory, for maximum of $hours hours ..."
+echo "Requesting interactive job with $cpus CPUs, $mem mb memory, for maximum of $hours hours ..."
 echo "Please wait until you are granted a job allocation..."
 
 if [ ${host:0:3} == "gra" ]

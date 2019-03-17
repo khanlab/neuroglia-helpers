@@ -3,7 +3,7 @@
 host=`hostname`
 
 name=neuroglia_interactive
-cpu=8
+cpus=8
 hours=3
 mem=32000
 

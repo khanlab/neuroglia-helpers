@@ -1,0 +1,2 @@
+plugin: LegacyMultiProc
+plugin_args: {maxtasksperchild: 1, memory_gb: 64, n_procs: 16, raise_insufficient: false}

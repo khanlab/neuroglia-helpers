@@ -1,5 +1,17 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
 function usage {
 
    echo""
@@ -13,36 +25,24 @@ function usage {
    echo "optional flags:"
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
-   echo " -n : ninja-mode, delete job file and hide command in log file (for passwords in getDicomTgz)"
-   echo " -E <env_script>:  script to source for env setup"
+   echo " -n : ninja-mode, delete job file and hide command in log file"
+   echo " -r : run-mode, use singularity run instead of singularity exec"
+   echo " -U <uri> : uri for singularity container to use (default: $NEUROGLIA_URI)"
+   echo " -I <simg> : path to container to use (default: `shub-cache $NEUROGLIA_URI`)"
+   echo " -N <name> : name the batch job (default: name is command with path stripped off)"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
    echo ""
-   echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
-   echo ""
-   echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
-
+   usage_job_templates
+   usage_job_depends
 
 }
-
-host=`hostname`
-if [ ! ${host:0:3} = "gra" ]
-then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
-	exit 1
-fi
-
 
 
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
+cmd=$0
+cmdname=${cmd##*/}
+
 
 if [ "$#" -lt 1 ]
 then 
@@ -55,11 +55,16 @@ depends=""
 testmode=0
 enable_wait=0
 ninja=0
-
+scmd="exec"
+uri=$NEUROGLIA_URI
+SINGULARITY_IMG=
 output_dir=`realpath $PWD`
+scriptname=
 
-while getopts "j:d:tWnN:E:" options; do
+while getopts "Jj:d:tWnrN:I:A:U:" options; do
  case $options in
+    J ) print_job_templates
+	exit 1;;
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
@@ -70,10 +75,16 @@ while getopts "j:d:tWnN:E:" options; do
 	enable_wait=1;;
     n ) echo "  Using ninja mode" >&2
 	ninja=1;;
+    r ) echo "  Run instead of exec" >&2
+	scmd="run";;
     N ) echo "	Using job name: $OPTARG" >&2
-	cmdname=$OPTARG;;
-    E ) echo "	Sourcing $OPTARG in each job" >&2
-	envscript=$OPTARG;;
+	scriptname=$OPTARG;;
+    I ) echo "	Using SINGULARITY_IMG: $OPTARG" >&2
+	SINGULARITY_IMG=$OPTARG;;
+    U ) echo "  Using singlarity image uri: $OPTARG" >&2
+	uri=$OPTARG;;
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -82,35 +93,39 @@ done
 
 shift $((OPTIND-1))
 
-run_cmd=$1
+run_cmd=$@
 
-
-if [ ! -n "$cmdname" ]
+if [ ! -n "$scriptname" ]
 then
-cmdname=${run_cmd##*/} #remove up to leading slash
+scriptname=${run_cmd%%\ *} #remove all but first word
+scriptname=${scriptname##*/} #remove up to leading slash
 fi
 
+echo $scriptname >&2
 
-echo $cmdname >&2
-
+if [ -n "$SINGULARITY_IMG" ]
+then
+  SINGULARITY_IMG=`shub-cache $uri`
+  if [ ! "$?" = 0 ]
+  then
+    echo "error loading $uri, exiting!"
+    exit 
+  fi
+fi
 
 job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
-job=$job_dir/$cmdname.job
+job=$job_dir/$scriptname.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$cmdname" >> $job
+echo "#SBATCH --account=$cc_account" >> $job
 echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
-if [ -n "$envscript" ]
-then
-	echo "source $envscript" >> $job
-fi
-
-
+echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -118,9 +133,12 @@ else
 echo "echo CMD: $@" >>$job
 fi
 echo "echo START_TIME: \`date\`" >>$job
+echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
+echo "mkdir -p \$SCRATCH_DIR" >> $job
 echo cd `pwd` >> $job
-echo $@ >> $job
+echo singularity $scmd $SINGULARITY_OPTS $SINGULARITY_IMG $@ >> $job
 echo "RETURNVAL=\$?" >> $job
+echo "rm -rf \$SCRATCH_DIR" >> $job
 echo "echo RETURNVAL=\$RETURNVAL" >>$job
 echo "echo END_TIME: \`date\`" >>$job
 echo "exit \$RETURNVAL" >> $job

@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Line below locks the script so cannot be run simultaneously (i.e. to prevent conflicts) -- however, does not work on home directory filesystem, only works on project space filesystem...
+
+#[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
+
+
+if [ ! -n "$SINGULARITY_DIR" ]
+then
+	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
+	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
+fi
+
+if [ ! "$#" = 1 ]
+then
+	echo "Usage: $0 shub://org/repo:tag" >&2
+	exit 1
+fi
+
+#input is shub URL
+
+url=$1
+
+suff=${url##*://}
+tag=${suff#*:}
+org=${suff%%/*}
+name=${suff#*/}
+name=${name%:*}
+
+bra=master
+
+hub=${url%%://*}
+if [ "$hub" = "docker" ]
+then
+	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.img
+	dlpath=$SINGULARITY_DIR/${name}-${tag}.simg
+elif [ "$hub" = "shub" ]
+then
+	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
+	dlpath=$cached
+else
+	echo "Must use docker:// or shub://"
+	exit 1
+fi
+
+if [ ! -e $cached ]
+then
+	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
+	export SINGULARITY_CACHEDIR=$SINGULARITY_DIR
+	rm -f $dlpath
+	singularity pull $url >&2 
+	if [ "$?" = 0 ]
+	then
+		mv -v $dlpath $cached >&2
+	fi
+
+	if [ ! -e $cached ]
+	then
+		echo ERROR: could not pull image >&2
+		exit 1
+	fi
+		
+else
+
+	#cached version exists, want to back it up and update it
+	ext=${cached##*.}
+	#get date of old container
+	datestring=`ls -l --time-style='+%Y%m%d' $cached`
+	datestring=${datestring%%\ $cached}
+	datestring=${datestring##*\ }
+
+	echo ext $ext >&2
+	echo cached $cached >&2
+	echo datestring $datestring >&2
+	cached_bak=${cached%.*}.$datestring.$ext
+	mv -n $cached $cached_bak
+	cached=$(shub-cache $url)
+
+
+fi
+
+
+echo `realpath $cached`
+exit 0

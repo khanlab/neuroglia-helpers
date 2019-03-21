@@ -20,7 +20,7 @@ echo "module load singularity" >> ~/.bashrc
 
 ## Configuration
 
-The `init/00_init.sh` script contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
+The `cfg/graham.cfg` file contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
 
 ## Job templates
 

@@ -12,7 +12,7 @@ then
 fi
 
 
-if [ -n "$SINGULARITY_IMG" ]
+if [ ! -n "$SINGULARITY_IMG" ]
 then
   SINGULARITY_IMG=`shub-cache $NEUROGLIA_URI`
   if [ ! "$?" = 0 ]

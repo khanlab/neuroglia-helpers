@@ -103,7 +103,7 @@ fi
 
 echo $scriptname >&2
 
-if [ -n "$SINGULARITY_IMG" ]
+if [ ! -n "$SINGULARITY_IMG" ]
 then
   SINGULARITY_IMG=`shub-cache $uri`
   if [ ! "$?" = 0 ]

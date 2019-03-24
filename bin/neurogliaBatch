@@ -18,11 +18,11 @@ fi
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
 
-if [ ! -n "$SINGULARITY_IMG" ]
-then
-	echo "SINGULARITY_IMG not defined! exiting..." >&2
-	exit 1
-fi
+#if [ ! -n "$SINGULARITY_IMG" ]
+#then
+#	echo "SINGULARITY_IMG not defined! exiting..." >&2
+#	exit 1
+#fi
 
 if [ ! -n "$SINGULARITY_OPTS" ]
 then
@@ -97,7 +97,7 @@ singlesubj=""
 testmode=0
 uri=$NEUROGLIA_URI
 SINGULARITY_IMG=
-
+cc_account=$CC_COMPUTE_ALLOC
 
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
@@ -133,7 +133,7 @@ while getopts "Jb:a:j:d:gs:tI:A:N:U:" options; do
  esac
 done
 
-if [ -n "$SINGULARITY_IMG" ]
+if [ ! -n "$SINGULARITY_IMG" ]
 then
   SINGULARITY_IMG=`shub-cache $uri`
   if [ ! "$?" = 0 ]

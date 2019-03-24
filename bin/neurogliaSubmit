@@ -60,6 +60,7 @@ uri=$NEUROGLIA_URI
 SINGULARITY_IMG=
 output_dir=`realpath $PWD`
 scriptname=
+cc_account=$CC_COMPUTE_ALLOC
 
 while getopts "Jj:d:tWnrN:I:A:U:" options; do
  case $options in

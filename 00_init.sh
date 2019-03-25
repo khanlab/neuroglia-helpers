@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "***"
-echo " Initializing neuroglia-helpers"
+#echo "***"
+#echo " Initializing neuroglia-helpers"
 
 export NEUROGLIA_DIR=$(dirname `realpath $BASH_SOURCE`)
 
@@ -12,9 +12,9 @@ set -a
 source $NEUROGLIA_DIR/cfg/graham.cfg
 set +a
 
-echo " Container path: $SINGULARITY_DIR"
-echo " Singularity options: $SINGULARITY_OPTS"
-echo " Neuroglia container: $NEUROGLIA_URI"
+#echo " Container path: $SINGULARITY_DIR"
+#echo " Singularity options: $SINGULARITY_OPTS"
+#echo " Neuroglia container: $NEUROGLIA_URI"
 
 
 
@@ -30,6 +30,6 @@ then
 
 fi
 
-echo " CPU account: $CC_COMPUTE_ALLOC"
-$NEUROGLIA_DIR/etc/printGroupUsage ${CC_COMPUTE_ALLOC}_cpu
-echo "***"
+#echo " CPU account: $CC_COMPUTE_ALLOC"
+#$NEUROGLIA_DIR/etc/printGroupUsage ${CC_COMPUTE_ALLOC}_cpu
+#echo "***"

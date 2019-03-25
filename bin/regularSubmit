@@ -1,5 +1,16 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
 function usage {
 
    echo""
@@ -7,36 +18,21 @@ function usage {
    echo "Interface for submitting a single cluster job with singularity"
    echo ""
    echo "--------------------------------------------------------------------------"
-   echo "Usage: $cmdname <optional flags>  <command to run>"
+   echo "Usage: $scriptname <optional flags>  <command to run>"
    echo "--------------------------------------------------------------------------"
    echo ""
    echo "optional flags:"
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -n : ninja-mode, delete job file and hide command in log file (for passwords in getDicomTgz)"
-   echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
    echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
-
+   usage_job_templates
+   usage_job_depends
 
 }
-
-host=`hostname`
-if [ ! ${host:0:3} = "gra" ]
-then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
-	exit 1
-fi
-
 
 
 #run a pipeline job on the cluster
@@ -53,11 +49,15 @@ depends=""
 testmode=0
 enable_wait=0
 ninja=0
-
+cc_account=$CC_COMPUTE_ALLOC
+scriptname=
 output_dir=`realpath $PWD`
+envscript=
 
-while getopts "j:d:tWnN:" options; do
+while getopts "Jj:d:tWnN:A:E:" options; do
  case $options in
+    J ) print_job_templates
+	exit 1;;
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
@@ -69,7 +69,11 @@ while getopts "j:d:tWnN:" options; do
     n ) echo "  Using ninja mode" >&2
 	ninja=1;;
     N ) echo "	Using job name: $OPTARG" >&2
-	cmdname=$OPTARG;;
+	scriptname=$OPTARG;;
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -78,29 +82,32 @@ done
 
 shift $((OPTIND-1))
 
-run_cmd=$1
+run_cmd=$@
 
-
-if [ ! -n "$cmdname" ]
+if [ ! -n "$scriptname" ]
 then
-cmdname=${run_cmd##*/} #remove up to leading slash
+scriptname=${run_cmd%%\ *} #remove all but first word
+scriptname=${scriptname##*/} #remove up to leading slash
 fi
 
-
-echo $cmdname >&2
-
+echo $scriptname >&2
 
 job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
-job=$job_dir/$cmdname.job
+job=$job_dir/$scriptname.job
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
-echo "#SBATCH --job-name=$cmdname" >> $job
-echo "#SBATCH --output=$job_dir/${cmdname}.%A.out" >> $job
+echo "#SBATCH --job-name=$scriptname" >> $job
+echo "#SBATCH --account=$cc_account" >> $job
+echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
+
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -136,7 +143,7 @@ else
 	jobid=$(echo ${message} | grep -oh "[1-9][0-9]*$")
 fi
 echo "jobid=$jobid" >&2
-exec_job=$job_dir/$cmdname.$jobid.job
+exec_job=$job_dir/$scriptname.$jobid.job
 
 
 if [ "$ninja" = 0 ]

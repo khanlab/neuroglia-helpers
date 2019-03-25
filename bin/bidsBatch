@@ -1,36 +1,41 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
+
 function usage {
    echo""
    echo "=========================================================================="
    echo "Interface for running bids apps on the cluster with singularity"
    echo ""
-   echo "  Loops through an input subject_list_txt (txt with subj id on each line)"
    echo "  Can be used to run scripts that generally take command-line parameters as:"
    echo ""
    echo "Usage: $cmdname <bidsBatch options> <app_name> <bids_dir> <output_dir> <participant/group> <app options>"
    echo ""
    echo "Available apps:"
-	cat $app_list | awk -F '\t' '{print $1 "\t"  $2 }' | column -t
+   print_app_list_names
+   echo "  ( for list with url, use -B option )"
    echo ""
    echo "bidsBatch options:"
    echo ""
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in participants.tsv) instead"
    echo " -S <subjlist> : subjlist mode, run on a subset of subjects defined by a simple text file (one id per line)"
-   echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -t : test-mode, don't actually submit any jobs"
    echo " -L <N> : local mode, run jobs locally with N parallel jobs, instead of submitting (do not use on compute canada login node)"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
    echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
-   echo ""
-   echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
+   usage_job_templates
+   usage_job_depends
 
  }
 
@@ -119,10 +124,7 @@ fi
 }
 
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-
-app_list=$execpath/bids-apps.tsv
+app_list=$NEUROGLIA_DIR/bids-apps.tsv
 
 if [ ! -n "$SINGULARITY_OPTS" ]
 then
@@ -148,9 +150,14 @@ subjlist=""
 override_template=0
 runlocal=0
 localscratch="/localscratch" # default for graham
+cc_account=$CC_COMPUTE_ALLOC
 
-while getopts "j:d:s:tS:L:" options; do
+while getopts "Jj:Bd:s:tS:L:A:" options; do
  case $options in
+    B ) print_app_list_long
+	    exit 1;;
+    J ) print_job_templates
+	exit 1;;
     j ) echo "	Using job template: $OPTARG" >&2
 	override_template=1
 	job_template=$OPTARG;;
@@ -171,6 +178,8 @@ while getopts "j:d:s:tS:L:" options; do
     SINGULARITY_OPTS="$SINGULARITY_OPTS -e -B $localscratch:/scratch"
     fi
     runlocal=1;;
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -306,10 +315,11 @@ job=$job_dir/$app_name.$level.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 
 echo "#SBATCH --job-name=$app_name" >> $job
+echo "#SBATCH --account=$cc_account" >> $job
 
 if [ "$level_part" == "parti" ]
 then
@@ -383,7 +393,7 @@ else #either running in testmode or locally
         if [ "$runlocal" == 1 ]
         then
 
-        popts="--no-notice --verbose --jobs $ncores -u"
+        popts="--no-notice --verbose --jobs $ncores --line-buffer "
 
         #if no special cases, then make a run script, then run that script
         if [ ! -n "$subjlist" ]
@@ -395,13 +405,13 @@ else #either running in testmode or locally
         then
             if [ ! -n "$singlesubj" ]
             then
-                 seq 1 $N | parallel echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+                 seq 1 $N | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\>\&1 \| tee $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
                  else
-                 echo $indices | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
+                 echo $indices | parallel $popts echo "export SLURM_ARRAY_TASK_ID={}\; bash $job 2\>\&1 \| tee  $job_dir/${app_name}.$level.local_$datestring.{}.out" > $joblist
             fi
          else
             #group level:
-           echo "bash $job 2\&\> $job_dir/${app_name}.$level.local_$datestring.out" > $joblist
+           echo "bash $job 2\>\&1 \| tee  $job_dir/${app_name}.$level.local_$datestring.out" > $joblist
         fi
 
         else

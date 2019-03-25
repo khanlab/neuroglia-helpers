@@ -1,5 +1,17 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
 
 cfmm2tar_img=`shub-cache shub://khanlab/cfmm2tar:v0.0.1i`
 

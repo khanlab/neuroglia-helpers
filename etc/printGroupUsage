@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#report project fairshare
+levelfs=`sshare -o 'LevelFS' -A ${1} -h | head -n 1`
+
+if [[ $(echo "$levelfs >= 1"  | bc -l ) -eq 1 ]]
+then
+	echo "  Group usage [#------] (LevelFS: $levelfs)"
+elif [[ $(echo "$levelfs > 0.9 "  | bc -l) -eq 1 ]]
+	then echo "  Group usage [##-----] (LevelFS: $levelfs)"
+elif [[ $(echo "$levelfs > 0.8 "  | bc -l) -eq 1 ]]
+	then echo "  Group usage [###----] (LevelFS: $levelfs)"
+elif [[ $(echo "$levelfs > 0.7 "  | bc -l ) -eq 1 ]]
+	then echo "  Group usage [####---] (LevelFS: $levelfs)" 
+elif [[ $(echo "$levelfs > 0.6 "  | bc -l) -eq 1 ]]
+	then echo "  Group usage [#####--] (LevelFS: $levelfs)"
+elif [[ $(echo "$levelfs > 0.5 "  | bc -l ) -eq 1 ]]
+	then echo "  Group usage [######-] (LevelFS: $levelfs)"
+else 
+	echo "  Group usage [#######] (LevelFS: $levelfs)"
+fi
+
+topuser=`sshare -o 'User,NormUsage' -A ${1} -a -h | sort -r -k 2,2 | awk '{print $1}' | head -n 1`
+echo "  Highest individual usage: $topuser"

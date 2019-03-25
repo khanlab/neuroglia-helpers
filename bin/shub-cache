@@ -1,15 +1,20 @@
 #!/bin/bash
 
-# Line below locks the script so cannot be run simultaneously (i.e. to prevent conflicts) -- however, does not work on home directory filesystem, only works on project space filesystem...
+execpath=`dirname $0`
+execpath=`realpath $execpath`
 
-#[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
-
-
-if [ ! -n "$SINGULARITY_DIR" ]
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
 then
-	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
-	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
 fi
+
+#if [ ! -n "$SINGULARITY_DIR" ]
+#then
+#	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
+#	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
+#fi
 
 if [ ! "$#" = 1 ]
 then

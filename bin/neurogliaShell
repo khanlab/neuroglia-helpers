@@ -1,0 +1,26 @@
+#!/bin/bash
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
+if [ ! -n "$SINGULARITY_IMG" ]
+then
+  SINGULARITY_IMG=`shub-cache $NEUROGLIA_URI`
+  if [ ! "$?" = 0 ]
+  then
+    echo "error loading $NEUROGLIA_URI, exiting!"
+    exit 
+  fi
+fi
+
+
+singularity shell $SINGULARITY_OPTS $SINGULARITY_IMG $@

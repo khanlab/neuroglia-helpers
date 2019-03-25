@@ -1,37 +1,26 @@
 #!/bin/bash
-host=`hostname`
-if [ ! ${host:0:3} == "gra" ]
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
 then
-	echo "Please ssh to graham.sharcnet.ca before using $0" >&2
+	echo "Error initializing neuroglia-helpers, quitting $0"
 	exit 1
 fi
-
 
 
 #run a pipeline job on the cluster
 #pipeline jobs take subjids as args
 
-if [ ! -n "$SINGULARITY_IMG" ]
-then
-	echo "SINGULARITY_IMG not defined! exiting..." >&2
-	exit 1
-fi
-
-if [ ! -n "$SINGULARITY_OPTS" ]
-then
-	echo "SINGULARITY_OPTS not defined! exiting..." >&2
-	exit 1
-fi
-
 cmd=$0
 cmdname=${cmd##*/}
 
-
-if [ "$#" -lt 2 ]
-then 
-   echo""
+function usage {
+   echo ""
    echo "=========================================================================="
-   echo "Interface for running pipeline scripts on the cluster with singularity"
+   echo "Interface for running pipeline scripts on the cluster "
    echo ""
    echo "  Loops through an input subject_list_txt (txt with subj id on each line)"
    echo "  Can be used to run scripts that generally take command-line parameters as:"
@@ -47,25 +36,31 @@ then
    echo " -g : group/reduce job, pass the subject list instead of looping over subjects"
    echo " -s <subjid> : single-subject mode, run on a single subject (must be in subjlist) instead"
    echo " -t : test-mode, don/'t actually submit any jobs"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
-   echo ""
-   echo " Passing arguments to pipeline script"
-   echo "  -b /"args/" : cmd-line arguments that go *before* the subject id"
-   echo "  -a /"args/" : cmd-line arguments that go *after* the subject id"
-   echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
+   usage_batch_before_after
+   usage_job_templates
+   usage_job_depends
+}
 
-  exit 1
+#get options in front 
+while getopts "J" options; do
+ case $options in
+    J ) print_job_templates
+	exit 1;;
+    * ) usage
+	exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -lt 2 ]
+then 
+	usage
+	exit 1
 fi
-
 
 output_dir=`realpath $PWD`
 
@@ -80,12 +75,16 @@ depends=""
 group=0
 singlesubj=""
 testmode=0
+cc_account=$CC_COMPUTE_ALLOC
+envscript=
 
 scriptname=${pipeline_script##*/} #strip leading path
 echo $scriptname >&2
 
-while getopts "b:a:j:d:gs:tI:" options; do
+while getopts "Jb:a:j:d:gs:tA:E:" options; do
  case $options in
+    J ) print_job_templates
+	exit 1;;
     b ) echo "	Setting arguments before subjid:  $OPTARG" >&2
 	before_args=$OPTARG;;
     a ) echo "	Setting arguments after subjid:  $OPTARG" >&2
@@ -100,9 +99,10 @@ while getopts "b:a:j:d:gs:tI:" options; do
 	group=1;;
     t ) echo "	Using test-mode (no submit jobs)" >&2
 	testmode=1;;
-    I ) echo "	Using SINGULARITY_IMG: $OPTARG" >&2
-	SINGULARITY_IMG=$OPTARG;;
-
+    A ) echo "	Using allocation account: $OPTARG" >&2
+        cc_account=$OPTARG;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
     * ) usage
 	exit 1;;
  esac
@@ -151,27 +151,27 @@ mkdir -p $job_dir
 
 job=$job_dir/$scriptname.job
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$scriptname" >> $job
-
+echo "#SBATCH --account=$cc_account" >> $job
 
 if [ "$group" == 0 ]
 then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
-	
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
 	echo "subj=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $subjlist`  | tail -n 1\`" >> $job
 	echo cd `pwd` >> $job
-	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 	echo "echo CMD: $pipeline_script $before_args \$subj $after_args" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
-	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args \$subj $after_args  >> $job
+	echo $pipeline_script $before_args \$subj $after_args  >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
@@ -183,14 +183,17 @@ then
 else
 	#submit without arrays, using subjlist
 	echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+	if [ -n "$envscript" ]
+	then
+		echo "source $envscript" >> $job
+	fi
 
 	echo "export SCRATCH_DIR=/scratch/${USER}/\${SLURM_JOB_ID}" >> $job
 	echo "mkdir -p \$SCRATCH_DIR" >> $job
-	echo "echo SINGULARITY_IMG: $SINGULARITY_IMG" >> $job
 	echo "echo CMD: $pipeline_script $before_args `realpath $subjlist` $after_args" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo cd `pwd` >> $job
-	echo singularity exec $SINGULARITY_OPTS $SINGULARITY_IMG $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
+	echo $pipeline_script $before_args `realpath $subjlist` $after_args >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "rm -rf \$SCRATCH_DIR" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job

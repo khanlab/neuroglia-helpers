@@ -1,8 +1,19 @@
 #!/bin/bash
 
+execpath=`dirname $0`
+execpath=`realpath $execpath`
 
-if [ "$#" -lt 1 ]
-then 
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+
+function usage {
+
    echo""
    echo "=========================================================================="
    echo "Interface for running list of jobs on cluster"
@@ -17,18 +28,30 @@ then
    echo ""
    echo " -t : test-mode, don/'t actually submit any jobs"
    echo " -e : preserve environment variables (--export=ALL to sbatch)"
+   echo " -A <account> : account to use for allocation (default: $CC_COMPUTE_ALLOC)"
+   echo " -E <env_script>:  script to source for env setup"
    echo ""
-   echo " Required resources:"
-   echo " -j <job-template> :  sets requested resources"
-   echo "	Regular (default):	8core/32gb/24h"
-   echo "	LongSkinny:		1core/4gb/72h"
-   echo "	ShortFat:		32core/128gb/3h"
-   echo ""
-   echo " SLURM Job dependencies for pipelining (man sbatch for more details):"
-   echo "  -d aftercorr:jobid[:jobid]	: each subj depends on completed subj in submitted job ids"  
-   echo "  -d afterok:jobid[:jobid]	: each subj depends on all completed subj in submitted job id"
-   echo ""
+   usage_job_templates
+   usage_job_depends
 
+ }
+
+
+#get options in front 
+while getopts "J" options; do
+ case $options in
+    J ) print_job_templates
+	exit 1;;
+    * ) usage
+	exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -lt 1 ]
+then 
+  usage
   exit 1
 fi
 
@@ -41,9 +64,13 @@ job_template=Regular
 depends=""
 testmode=0
 keepenv=0
+cc_account=$CC_COMPUTE_ALLOC
+envscript=
 
-while getopts "j:td:e" options; do
+while getopts "Jj:td:eA:E:" options; do
  case $options in
+    J ) print_job_templates
+	exit 1;;
     j ) echo "	Using job template: $OPTARG" >&2
 	job_template=$OPTARG;;
     d ) echo "	Using dependencies: $OPTARG" >&2
@@ -52,7 +79,11 @@ while getopts "j:td:e" options; do
 	testmode=1;; 
     e ) echo "	Preserve environment (--export=ALL)" >&2
 	keepenv=1;;
-    * ) usage
+    A ) echo "	Using allocation account: $OPTARG" >&2
+	    cc_account=$OPTARG;;
+    E ) echo "	Sourcing $OPTARG in each job" >&2
+	envscript=$OPTARG;;
+   * ) usage
 	exit 1;;
  esac
 done
@@ -77,13 +108,19 @@ job=$job_dir/$jobname.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
-cp $execpath/job-templates/${job_template}.job $job  
+cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 echo "#SBATCH --job-name=$jobname" >> $job
+echo "#SBATCH --account=$cc_account" >> $job
 
 #submit with array, using subj and subjlist, indexed by line number (1-N)
 echo "#SBATCH --output=$job_dir/${jobname}.%A_%a.out" >> $job
 echo "#SBATCH --array=$indices" >> $job
+
+if [ -n "$envscript" ]
+then
+	echo "source $envscript" >> $job
+fi
 
 echo "cmd=\`head -n \$SLURM_ARRAY_TASK_ID `realpath $joblist`  | tail -n 1\`" >> $job
 echo cd `pwd` >> $job

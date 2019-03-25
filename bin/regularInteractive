@@ -18,6 +18,11 @@ then
 		echo using visualization
 		salloc -J $name --x11 -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
 	
+	elif [ "$1" == "-large" ]
+	then
+	     echo using large allocation
+	     sallac -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=$CC_COMPUTE_ALLOC
+	
 	elif [ "$1" == "-gpu" ]
 	then
 		# Uses account $CC_GPU_ALLOC

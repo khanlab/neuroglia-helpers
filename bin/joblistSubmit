@@ -104,7 +104,7 @@ job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
 jobname=${joblist##*/} #strip leading path
-job=$job_dir/$jobname.job
+job=$job_dir/$jobname.$RANDOM.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
@@ -157,8 +157,8 @@ fi
 echo "jobid=$jobid" >&2
 exec_job=$job_dir/$scriptname.$jobid.job
 
-#copy instance of this job script for provenance
-cp  $job $exec_job
+#move instance of this job script for provenance
+mv  $job $exec_job
 
 else
 	jobid=$RANDOM

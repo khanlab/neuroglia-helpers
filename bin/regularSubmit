@@ -95,7 +95,7 @@ echo $scriptname >&2
 job_dir=$output_dir/jobs
 mkdir -p $job_dir
 
-job=$job_dir/$scriptname.job
+job=$job_dir/$scriptname.$RANDOM.job
 
 cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
@@ -148,8 +148,8 @@ exec_job=$job_dir/$scriptname.$jobid.job
 
 if [ "$ninja" = 0 ]
 then
-#copy instance of this job script for provenance
-cp  $job $exec_job
+#move instance of this job script for provenance
+mv  $job $exec_job
 fi
 
 else

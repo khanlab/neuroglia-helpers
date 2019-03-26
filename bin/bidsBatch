@@ -311,7 +311,7 @@ else
 fi
 
 
-job=$job_dir/$app_name.$level.job
+job=$job_dir/$app_name.$level.$RANDOM.job
 
 execpath=`dirname $0`
 execpath=`realpath $execpath`
@@ -381,8 +381,8 @@ fi
 echo "jobid=$jobid" >&2
 exec_job=$job_dir/$app_name.$level.$jobid.job
 
-#copy instance of this job script for provenance
-cp  $job $exec_job
+#move instance of this job script for provenance
+mv  $job $exec_job
 
 else #either running in testmode or locally
     if [ "$testmode" == 1 ]

@@ -36,3 +36,4 @@ freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps
 prepT2space_v0.0.2b	shub://khanlab/prepT2space:v0.0.2b		Regular
 beast_v0.0.2	docker://khanlab/beast:v0.0.2	--BEAST_PATH ${BEAST_PATH}	ShortSkinny
 despot1_dev	docker://khanlab/despot1:latest		ShortSkinny
+mdt-bids_v0.1	docker://khanlab/mdt-bids:v0.1		ShortFat

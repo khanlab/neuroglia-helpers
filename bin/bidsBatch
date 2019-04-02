@@ -262,6 +262,20 @@ then
 
 fi
 
+#check if header line is there
+header=`head -n 1 $list`
+if [ ! "${header:0:14}" = "participant_id" ]
+then
+	echo "invalid $list, no header row.."
+       	list=$job_dir/in_participants.tsv
+	echo "$list invalid (no header row), creating temporary one in $list" >&2 
+	 echo "participant_id"> $list
+	 pushd $bids_dir
+	 ls -d sub-* >> $list
+	 popd 
+
+fi
+
 N=`tail -n +2 $list | wc -l`
 
 if [ ! -n "$singlesubj" ]

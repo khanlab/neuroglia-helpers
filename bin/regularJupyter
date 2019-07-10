@@ -1,0 +1,40 @@
+#!/bin/bash
+
+host=`hostname`
+
+name=jupyter
+jupyter_script=/home/$USER/opt/venv/jupyter_venv/bin/notebook.sh #REPLACE THIS WITH WHERE YOUR JUPYTER NOTEBOOK SCRIPT IS LOCATED
+cpus=4
+hours=3
+mem=16000
+
+echo "Requesting interactive job with $cpu CPUs, $mem mb memory, for maximum of $hours hours ..."
+echo "Please wait until you are granted a job allocation..."
+
+if [ ${host:0:3} == "gra" ]
+then
+	echo running on graham
+	if [ "$1" == "-large" ]
+	then
+		echo "using large allocation (full node)"
+	     	salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=$CC_COMPUTE_ALLOC srun $jupyter_script 
+	
+	elif [ "$1" == "-medium" ]
+	then
+		echo "using medium allocation (half node)"
+		salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=16 --ntasks=1 --mem=64000 --account=$CC_COMPUTE_ALLOC srun $jupyter_script
+	
+	elif [ "$1" == "-small" ]
+	then 
+		echo "using small allocation (quarter node)" 
+		salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=8 --ntasks=1 --mem=32000 --account=$CC_COMPUTE_ALLOC srun $jupyter_script
+
+	else
+		salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC srun $jupyter_script
+	fi
+else
+
+	echo "Please ssh to graham.sharcnet.ca before using $0"
+	exit -1
+fi
+

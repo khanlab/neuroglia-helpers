@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ "$#" -lt 2 ]
+then
+	echo "This script can be used to add user(s) to the access control list for a file/folder recursively"
+	echo " Note: this script always adds the current user (you) as well as any specified usernames"
+	echo ""
+	echo "Usage: $0 <file/folder> <username> [optional: <additional usernames>]"
+	echo ""
+exit 1
+fi
+
+folder=$1
+
+
+#loop through to get $user, and $project
+
+
+uperm=user::rwX
+gperm=group::---
+operm=other::---
+mperm=mask:rwx
+
+permstring=$uperm,$gperm,$operm,$mperm
+shift 1
+for user in $USER $@
+do
+permstring=$permstring,user:$user:rwX
+done
+
+echo ""
+echo Performing the following access control operations:
+echo setfacl -R --set  $permstring $folder
+echo setfacl -R -d --set  $permstring $folder
+echo ""
+read -r -p "Are you sure? [y/N] " response
+case "$response" in
+[yY][eE][sS]|[yY]) 
+
+
+setfacl -R --set  $permstring $folder && setfacl -R -d --set  $permstring $folder && echo "Completed. The following command will display current permissions:" && echo "getfacl $folder"
+
+
+
+         ;;
+       *)
+echo aborting
+	        ;;
+esac
+
+

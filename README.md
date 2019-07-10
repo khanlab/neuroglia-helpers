@@ -14,9 +14,11 @@ Features:
 To set-up neuroglia-helpers on graham, run the following:
 ```
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
-echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bashrc
-echo "module load singularity" >> ~/.bashrc
+echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bash_profile
+echo "module load singularity" >> ~/.bash_profile
 ```
+
+NOTE: You should remove any lines that source `00_init.sh` or set `SINGULARITY_*` variables in your `.bashrc` file. If the above lines are in your .bashrc file, then you will have problems using sftp or scp clients.
 
 ## Configuration
 

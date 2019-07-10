@@ -3,7 +3,7 @@
 host=`hostname`
 
 name=jupyter
-jupyter_script=/project/6007967/tkai/venv/jupyter.sh #REPLACE THIS WITH WHERE YOUR JUPYTER NOTEBOOK SCRIPT IS LOCATED
+jupyter_script=/project/6007967/tkai/venv/jupyter.sh
 cpus=4
 hours=3
 mem=16000

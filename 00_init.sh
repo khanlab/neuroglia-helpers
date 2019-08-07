@@ -1,8 +1,30 @@
 #!/bin/bash
 
+#source this script in your .bash_profile:
+#  source ~/neuroglia-helpers/00_init.sh 
+
+#if you don't want to see the welcome message, use:
+#  source ~/neuroglia-helpers/00_init.sh light
+
+
+
+#light version doesn't display welcome message
+if [ "$#" = 1 ]
+then
+	use_light=1
+else
+	use_light=0
+fi
+
+if [ "$use_light" = 0 ]
+then
+
 echo "***"
 echo " Initializing neuroglia-helpers"
 
+fi
+
+#-------- this section always gets run -------
 export NEUROGLIA_DIR=$(dirname `realpath $BASH_SOURCE`)
 
 export PATH=${NEUROGLIA_DIR}/bin:$PATH
@@ -11,12 +33,6 @@ export NEUROGLIA_BASH_LIB=$NEUROGLIA_DIR/etc/bash_lib.sh
 set -a
 source $NEUROGLIA_DIR/cfg/graham.cfg
 set +a
-
-echo " Container path: $SINGULARITY_DIR"
-echo " Singularity options: $SINGULARITY_OPTS"
-echo " Neuroglia container: $NEUROGLIA_URI"
-
-
 
 #make SINGULARITY_DIR if it doesn't exist
 if [ ! -e $SINGULARITY_DIR ]
@@ -30,6 +46,19 @@ then
 
 fi
 
+
+#----------------------------------------------
+
+if [ "$use_light" = 0 ]
+then
+
+echo " Container path: $SINGULARITY_DIR"
+echo " Singularity options: $SINGULARITY_OPTS"
+echo " Neuroglia container: $NEUROGLIA_URI"
 echo " CPU account: $CC_COMPUTE_ALLOC"
+
 $NEUROGLIA_DIR/etc/printGroupUsage ${CC_COMPUTE_ALLOC}_cpu
+
 echo "***"
+
+fi

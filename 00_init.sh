@@ -35,9 +35,9 @@ source $NEUROGLIA_DIR/cfg/graham.cfg
 set +a
 
 #make SINGULARITY_DIR if it doesn't exist
-if [ ! -e $SINGULARITY_DIR ]
+if [ ! -e $SINGULARITY_DIR/bids-apps ]
 then
-	mkdir -p $SINGULARITY_DIR 
+	mkdir -p $SINGULARITY_DIR/bids-apps 
 
 	if [ ! "$?" = 0 -o ! -e $SINGULARITY_DIR ]
 	then

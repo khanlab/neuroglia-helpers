@@ -18,7 +18,10 @@ echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bash_profile
 echo "module load singularity" >> ~/.bash_profile
 ```
 
-NOTE: You should remove any lines that source `00_init.sh` or set `SINGULARITY_*` variables in your `.bashrc` file. If the above lines are in your .bashrc file, then you will have problems using sftp or scp clients.
+NOTE: You should remove any lines that source `00_init.sh` or set `SINGULARITY_*` variables in your `.bashrc` file. If the above lines are in your .bashrc file, then you will have problems using sftp or scp clients. If you need to use your .bashrc file, use the following:
+```
+echo "source ~/neuroglia-helpers/00_initrc.sh" >> ~/.bashrc
+```
 
 ## Configuration
 

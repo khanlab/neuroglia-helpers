@@ -332,6 +332,9 @@ execpath=`realpath $execpath`
 cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 
+#forces threads to 1 for now.. may need to revisit this if it is throttling things back too much.. 
+FORCE_THREADS="export SINGULARITYENV_OMP_NUM_THREADS=1; export SINGULARITYENV_MKL_NUM_THREADS=1;"
+
 echo "#SBATCH --job-name=$app_name" >> $job
 echo "#SBATCH --account=$cc_account" >> $job
 
@@ -340,7 +343,7 @@ then
 	#submit with array, using subj and subjlist, indexed by line number (1-N)
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A_%a.out" >> $job
 	echo "#SBATCH --array=$indices" >> $job
-	
+	echo "$FORCE_THREADS" >> $job
 	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
 	#strip off sub- from sub-LABEL
 	echo "subj=\${subj##sub-}" >> $job
@@ -358,6 +361,7 @@ then
 else
 	#submit without arrays, for group level
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A.out" >> $job
+	echo "$FORCE_THREADS" >> $job
 	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
 	echo "echo CMD:  $bids_dir $out_dir $level $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job

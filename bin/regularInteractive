@@ -3,38 +3,77 @@
 host=`hostname`
 
 name=neuroglia_interactive
+jupyter_script=/project/6007967/tkai/venv/jupyter.sh
 cpus=8
 hours=3
 mem=32000
+task=''
 
-echo "Requesting interactive job with $cpu CPUs, $mem mb memory, for maximum of $hours hours ..."
+while getopts "n:t:m:hYgj" flag
+do
+	case $flag in
+		Y) if [[ -n "$task" ]]; then
+			echo "Multiple task flags detected"
+			exit 1
+		   else
+			task='viz'
+		   fi;;
+		g) if [[ -n "$task" ]]; then
+		    echo "Multiple task flags detected"
+			exit 1
+		   else
+			task='gpu'
+		   fi;;
+		j) if [[ -n "$task" ]]; then
+		 	echo "Multiple task flags detected"
+			exit 1
+		   else
+			task='jupyter'
+		   fi;;
+		n) cpus=${OPTARG};;
+		t) hours=${OPTARG};;
+		m) mem=${OPTARG};;
+		h) echo "Usage: regularInteractive [-n <cpus>] [-t <hours>] [-m <mem>] [<task>]"
+		   echo "Job parameters"
+		   echo "-n Number of CPUs; default 8"
+		   echo "-t Number of hours; default 3"
+		   echo "-m Amount of memory; default 32000"
+		   echo "Tasks:"
+		   echo "-Y Visualization task"
+		   echo "-g GPU task"
+		   echo "-j Jupyter task"
+		   exit 1
+	esac
+done
+
+echo "Requesting interactive job with $cpus CPUs, $mem mb memory, for maximum of $hours hours ..."
 echo "Please wait until you are granted a job allocation..."
 
 if [ ${host:0:3} == "gra" ]
 then
 	echo running on graham
-	if [ "$1" == "-Y" ] 
+	if [ "$task" == "viz" ]
 	then
-		echo using visualization
+		echo "Using visualization..."
 		salloc -J $name --x11 -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
-	
-	elif [ "$1" == "-large" ]
-	then
-	     echo using large allocation
-	     sallac -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=32 --ntasks=1 --mem=128000 --account=$CC_COMPUTE_ALLOC
-	
-	elif [ "$1" == "-gpu" ]
+
+	elif [ "$task" == "gpu" ]
 	then
 		# Uses account $CC_GPU_ALLOC
-		echo using gpu
+		echo "Using gpu..."
 		salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --gres=gpu:1 --account=$CC_GPU_ALLOC
-	
-	else
-		salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC  
-	fi
-else
 
+	elif [ "$task" == "jupyter" ]
+	then
+		echo "Using Jupyter environment"
+		echo "Note: Python virtual environment with an installation of Jupyter should be activated"
+		salloc -J $name -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC srun $jupyter_script
+
+	else
+		salloc -J $name  -D `pwd` --time=$hours:00:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC
+	fi
+
+else
 	echo "Please ssh to graham.sharcnet.ca before using $0"
 	exit -1
 fi
-

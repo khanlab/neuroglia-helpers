@@ -13,7 +13,7 @@ fi
 
 if [ ! "$#" = 1 ]
 then
-	echo "Usage: $0 shub://org/repo:tag" >&2
+	echo "Usage: $0 {shub/docker}://org/repo:tag" >&2
 	exit 1
 fi
 
@@ -29,29 +29,58 @@ name=${name%:*}
 
 bra=master
 
+#check version of singularity (2 vs 3)
+version=`singularity --version`
+version=${version##*\ }
+version=${version:0:1}
+
+
 hub=${url%%://*}
 if [ "$hub" = "docker" ]
 then
+	if [ "$version" = "2" ]
+	then
 	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.img
 	dlpath=$SINGULARITY_DIR/${name}-${tag}.simg
+	elif [ "$version" = "3" ]
+	then
+	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.sif
+	dlpath=$cached
+	fi
 elif [ "$hub" = "shub" ]
 then
+	if [ "$version" = "2" ]
+	then
 	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
 	dlpath=$cached
+	elif [ "$version" = "3" ]
+	then
+	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.sif
+	dlpath=$cached
+	fi
+
 else
-	echo "Must use docker:// or shub://"
+	echo "Must use docker:// or shub://"  >&2
 	exit 1
 fi
+
 
 if [ ! -e $cached ]
 then
 	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
 	export SINGULARITY_CACHEDIR=$SINGULARITY_DIR
+	if [ "$version" = "2" ]
+	then
 	rm -f $dlpath
 	singularity pull $url >&2 
 	if [ "$?" = 0 ]
 	then
 		mv -v $dlpath $cached >&2
+	fi
+	elif [ "$version" = "3" ]
+	then
+	#singularity v3 can specify pull path directly
+	singularity pull $cached $url >&2 
 	fi
 
 	if [ ! -e $cached ]

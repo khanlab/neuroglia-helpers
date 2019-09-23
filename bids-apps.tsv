@@ -18,6 +18,10 @@ mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 320
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
+prepdwi_v0.0.12c	docker://khanlab/prepdwi:v0.0.12c	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
+prepdwi_v0.0.12c_bedpost	docker://khanlab/prepdwi:v0.0.12c	--n_cpus 8 -w $SLURM_TMPDIR	Regular
+prepdwi_v0.0.12c_7T	docker://khanlab/prepdwi:v0.0.12c	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
+prepdwi_v0.0.12c_bedpost_7T	docker://khanlab/prepdwi:v0.0.12c	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 prepdwi_v0.0.12b	docker://khanlab/prepdwi:v0.0.12b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.12b_bedpost	docker://khanlab/prepdwi:v0.0.12b	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_v0.0.12b_7T	docker://khanlab/prepdwi:v0.0.12b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
@@ -37,6 +41,7 @@ diffparc-sumo_v0.0.2	docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
 diffparc-sumo_dev	docker://khanlab/diffparc-sumo:latest		4core16gb12h
 diffparc-sumo_dev_BF	docker://khanlab/diffparc-sumo:latest	--skip_postproc --parcellate_type fullBF_hcpmmpVolMNI	4core64gb12h	
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
+mp2rage_correction_v0.0.4	docker://khanlab/mp2rage_correction:v0.0.4		ShortSkinny
 mp2rage_correction_dev	docker://khanlab/mp2rage_correction:latest		ShortSkinny
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
 gradcorrect_v0.0.3	docker://khanlab/gradcorrect:v0.0.3	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h

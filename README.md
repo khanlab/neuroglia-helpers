@@ -14,9 +14,14 @@ Features:
 To set-up neuroglia-helpers on graham, run the following:
 ```
 git clone http://github.com/khanlab/neuroglia-helpers ~/neuroglia-helpers
-echo "source ~/neuroglia-helpers/00_init.sh" >> ~/.bash_profile
-echo "module load singularity" >> ~/.bash_profile
+~/neuroglia-helpers/setup.sh
 ```
+
+If you want to use a different configuration profile, e.g. `khanlab`, add it as an argument to `setup.sh`:
+```
+~/neuroglia-helpers/setup.sh khanlab
+```
+
 
 NOTE: You should remove any lines that source `00_init.sh` or set `SINGULARITY_*` variables in your `.bashrc` file. If the above lines are in your .bashrc file, then you will have problems using sftp or scp clients. If you need to use your .bashrc file, use the following:
 ```
@@ -25,7 +30,7 @@ echo "source ~/neuroglia-helpers/00_initrc.sh" >> ~/.bashrc
 
 ## Configuration
 
-The `cfg/graham.cfg` file contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
+The `cfg/graham_default.cfg` file contains environment variables defining Compute Canada resource allocation accounts for compute jobs, and for defining where your Singularity container folder is placed.  
 
 ## Job templates
 

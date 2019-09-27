@@ -31,7 +31,7 @@ export PATH=${NEUROGLIA_DIR}/bin:$PATH
 export NEUROGLIA_BASH_LIB=$NEUROGLIA_DIR/etc/bash_lib.sh
 
 set -a
-source $NEUROGLIA_DIR/cfg/graham.cfg
+source $NEUROGLIA_DIR/cfg/graham${cfg_profile}.cfg
 set +a
 
 #make SINGULARITY_DIR if it doesn't exist

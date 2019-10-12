@@ -38,7 +38,7 @@ prepdwi_dev_fat	docker://khanlab/prepdwi:latest	--no-bedpost --n_cpus 32 -w $SLU
 prepdwi_dev_bedpost	docker://khanlab/prepdwi:latest	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_dev_7T	docker://khanlab/prepdwi:latest	--no-bedpost --n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 prepdwi_dev_bedpost_7T	docker://khanlab/prepdwi:latest	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
-diffparc-sumo_v0.0.2	docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
+diffparc-sumo_v0.0.2  docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
 diffparc-sumo_dev docker://khanlab/diffparc-sumo:latest   4core16gb12h
 diffparc-sumo_dev_BF  docker://khanlab/diffparc-sumo:latest --skip_postproc --parcellate_type fullBF_hcpmmpVolMNI 4core64gb12h	
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short

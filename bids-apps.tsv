@@ -42,6 +42,7 @@ diffparc-sumo_v0.0.2	docker://khanlab/diffparc-sumo:v0.0.2		4core16gb12h
 diffparc-sumo_dev	docker://khanlab/diffparc-sumo:latest		4core16gb12h
 diffparc-sumo_dev_BF	docker://khanlab/diffparc-sumo:latest	--skip_postproc --parcellate_type fullBF_hcpmmpVolMNI	4core64gb12h
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
+mp2rage_correction_v0.0.4a	docker://khanlab/mp2rage_correction:v0.0.4a		ShortSkinny
 mp2rage_correction_v0.0.4	docker://khanlab/mp2rage_correction:v0.0.4		ShortSkinny
 mp2rage_correction_dev	docker://khanlab/mp2rage_correction:latest		ShortSkinny
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny

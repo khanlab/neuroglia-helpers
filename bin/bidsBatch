@@ -353,7 +353,7 @@ then
 	echo "echo CMD: $bids_dir $out_dir $level --participant_label \$subj $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
+	echo singularity run  $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
@@ -368,7 +368,7 @@ else
 	echo "echo CMD:  $bids_dir $out_dir $level $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
+	echo singularity run $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job

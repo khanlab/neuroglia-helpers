@@ -15,4 +15,4 @@ fi
 
 cfmm2tar_img=`shub-cache shub://khanlab/cfmm2tar:v0.0.1i`
 
-singularity run -B /cvmfs:/cvmfs -B /project:/project -B /scratch:/scratch -B /localscratch:/localscratch $cfmm2tar_img $@
+singularity run  $cfmm2tar_img $@

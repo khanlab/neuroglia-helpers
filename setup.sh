@@ -10,6 +10,6 @@ else
   cfg_profile=
 fi
 
-echo "module load singularity/3.2" >> ~/.bash_profile
+echo "module load singularity/3.4" >> ~/.bash_profile
 echo "cfg_profile=${cfg_profile}" >> ~/.bash_profile
 echo "source $execpath/00_init.sh" >> ~/.bash_profile

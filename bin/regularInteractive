@@ -3,7 +3,7 @@
 host=`hostname`
 
 name=neuroglia_interactive
-jupyter_script=/project/6007967/tkai/venv/jupyter.sh
+jupyter_script=$NEUROGLIA_DIR/etc/jupyter.sh
 cpus=8
 hours=3
 mem=32000

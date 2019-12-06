@@ -1,0 +1,32 @@
+#!/bin/bash
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+if [ "$#" -lt 2 ]
+then
+	echo "This tool should be run on your local machine (scheduled) and loops through all docker:// URI's in bids-apps.tsv, pulling and copying to the remote system (e.g. graham).  This is required for singularity/3.2 and above, since pulling large images from docker directly on graham is slow/faulty"
+	echo ""
+	echo "Usage: $0 user@hostname identity_file"
+	echo ""
+       exit 1
+fi
+
+user_host=$1
+ident=$2
+
+pushd $execpath/../
+#update repo for updated apps list
+git pull
+
+app_list=bids-apps.tsv
+
+for uri in `awk -F '\t' '{print $2}' bids-apps.tsv | grep "docker://" | uniq `
+do
+
+echo $uri
+shub-cache-remote $uri $user_host $ident
+
+done
+
+popd

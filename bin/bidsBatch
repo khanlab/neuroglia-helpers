@@ -332,8 +332,10 @@ execpath=`realpath $execpath`
 cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job  
 
 
-#forces threads to 1 for now.. may need to revisit this if it is throttling things back too much.. 
-FORCE_THREADS="export SINGULARITYENV_OMP_NUM_THREADS=1; export SINGULARITYENV_MKL_NUM_THREADS=1;"
+#forces number of threads - based on job template
+ncpus=`grep cpus-per-task $job`
+ncpus=${ncpus##*=}
+FORCE_THREADS="export SINGULARITYENV_OMP_NUM_THREADS=$ncpus; export SINGULARITYENV_MKL_NUM_THREADS=$ncpus;"
 
 echo "#SBATCH --job-name=$app_name" >> $job
 echo "#SBATCH --account=$cc_account" >> $job

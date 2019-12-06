@@ -1,0 +1,68 @@
+#!/bin/bash 
+
+execpath=`dirname $0`
+execpath=`realpath $execpath`
+
+source ${NEUROGLIA_BASH_LIB}
+if [ ! "$?" = 0 ]
+then
+	echo "Error initializing neuroglia-helpers, quitting $0"
+	exit 1
+fi
+
+if [  "$#" -lt 3 ]
+then
+	echo "Usage: $0 {shub/docker}://org/repo:tag  remote_user@remote_host identity_file" >&2
+	exit 1
+fi
+
+
+#input is shub URL
+
+url=$1
+user_host=$2
+ident=$3
+
+
+#first make sure that singularity version is same on both (e.g. cannot have v2 v3 mismatch - since shub-cache names files differently for each)
+version=`singularity --version`
+version=${version##*\ }
+version=${version:0:1}
+local_v=$version
+
+
+version=`ssh -i $ident $user_host singularity --version`
+version=${version##*\ }
+version=${version:0:1}
+remote_v=$version
+
+if [ !  "$local_v" = "$remote_v" ]
+then
+	echo "Local singularity version: $local_v"
+	echo "Remote singularity version: $remote_v"
+	echo " Must have same version on local and remote systems!"
+	exit 1
+fi
+
+
+
+
+
+#first check if exists on remote
+remote_path=`ssh -i $ident $user_host shub-cache $url -n`
+
+img_exists=$?
+
+if [ "$img_exists" = 0 ] 
+then
+	echo "$remote_path already exists, don't need to pull" >&2
+	echo $remote_path
+else
+	echo "$remote_path does not exist, need to pull" >&2
+
+	#use shub-upgrade locally, so that if local container exists, it is backed up
+	local_path=`shub-upgrade $url`
+	scp -i $ident $local_path $user_host:$remote_path
+fi
+
+

@@ -69,47 +69,8 @@ url=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $2}'`
 base_opts=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $3}'`
 app_job_template=`cat $app_list | head -n $linenum | tail -n 1 |  awk -F '\t' '{print $4}'`
 
-hub=${url%%:*}
-if [ "$hub" = "docker" ]
-then
 
-  #use shub-cache to download if not exist, and return path to image
- singularity_image=`shub-cache $url`
- if [ ! "$?" = 0  -o ! -n "$singularity_image" -o ! -e "$singularity_image"  ]
- then
-   echo "Failed to pull $url, exiting" >&2
-   exit 1
- fi
-
-
-
-fi
-
-if [ "$hub" = "shub" ]
-then
- #use shub-cache to download if not exist, and return path to image
- singularity_image=`shub-cache $url`
- if [ ! "$?" = 0  -o ! -n "$singularity_image" -o ! -e "$singularity_image"  ]
- then
-   echo "Failed to pull $url, exiting" >&2
-   exit 1
- fi
- 
-
-fi
-
-if [ "$hub" = "file" ]
-then
- singularity_image=${url##file://}
-
- if [  ! -e "$singularity_image"  ]
- then
-   echo "File $singularity_image does not exist,  exiting" >&2
-   exit 1
- fi
- 
-
-fi
+# make use of built-in caching for singularity 3.4
 
 
 if [ "$override_template" = "0" -a -n "$app_job_template" ]
@@ -207,10 +168,22 @@ then
 	usage
 	
 	echo "$app_name, built-in default options: $base_opts"
-	echo "Usage for bids app:" >&2
-	if [ -e $singularity_image ]
+	echo "Usage for bids app:"
+
+
+	# if SINGULARITY_TMPDIR is not set, then we cannot pull,
+	if [ "$SINGULARITY_TMPDIR" = "" ]
 	then
-		singularity run $singularity_image
+		# so if singularity run takes longer than 5s, container is not cached..
+		timeout 10s singularity run $url
+		if [ "$?" == 124 ] 
+		then
+			# so run the command on an interactive job instead
+			sin-run $url
+		fi
+	else
+		# if SINGULARITY_TMPDIR is set, then we can pull to cache if needed
+		singularity run $url
 	fi
 
 	
@@ -349,11 +322,11 @@ then
 	echo "subj=\`tail -n +2 `realpath $list` | head -n \$SLURM_ARRAY_TASK_ID  | awk '{print \$1}' | tail -n 1\`" >> $job
 	#strip off sub- from sub-LABEL
 	echo "subj=\${subj##sub-}" >> $job
-	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
+	echo "echo SINGULARITY_IMAGE: $url" >> $job
 	echo "echo CMD: $bids_dir $out_dir $level --participant_label \$subj $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
+	echo singularity run $SINGULARITY_OPTS $url $bids_dir $out_dir $level  --participant_label \$subj $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job
@@ -364,11 +337,11 @@ else
 	#submit without arrays, for group level
 	echo "#SBATCH --output=$job_dir/${app_name}.$level.%A.out" >> $job
 	echo "$FORCE_THREADS" >> $job
-	echo "echo SINGULARITY_IMAGE: $singularity_image" >> $job
+	echo "echo SINGULARITY_IMAGE: $url" >> $job
 	echo "echo CMD:  $bids_dir $out_dir $level $base_opts $options" >>$job
 	echo "echo START_TIME: \`date\`" >>$job
 	echo "cd `pwd`" >> $job
-	echo singularity run -B $localscratch:/localscratch $SINGULARITY_OPTS $singularity_image $bids_dir $out_dir $level $base_opts $options >> $job
+	echo singularity run $SINGULARITY_OPTS $url $bids_dir $out_dir $level $base_opts $options >> $job
 	echo "RETURNVAL=\$?" >> $job
 	echo "echo RETURNVAL=\$RETURNVAL" >>$job
 	echo "echo END_TIME: \`date\`" >>$job

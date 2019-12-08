@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$#" -lt 1 ]
+then
+	singularity run --help
+	exit 1
+fi
+
+salloc -J sin-run -D `pwd` --time=0:30:00 --cpus-per-task=4 --ntasks=1 --mem=32000 --account=$CC_COMPUTE_ALLOC srun singularity run $@

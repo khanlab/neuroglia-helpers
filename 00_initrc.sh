@@ -3,6 +3,8 @@
 #source this script in your .bashrc: (required if you run commands directly with ssh)
 #  source ~/neuroglia-helpers/00_initrc.sh 
 
+# need to use some other variable to indicate init is sourced already
+
 if [ ! -n "$SINGULARITY_DIR" ]
 then
 	

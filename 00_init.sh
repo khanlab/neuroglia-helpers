@@ -35,16 +35,16 @@ source $NEUROGLIA_DIR/cfg/graham${cfg_profile}.cfg
 set +a
 
 #make SINGULARITY_DIR if it doesn't exist
-if [ ! -e $SINGULARITY_DIR/bids-apps ]
-then
-	mkdir -p $SINGULARITY_DIR/bids-apps 
-
-	if [ ! "$?" = 0 -o ! -e $SINGULARITY_DIR ]
-	then
-		echo "neuroglia-helpers init error:  Unable to set local SINGULARITY_DIR to $SINGULARITY_DIR"
-	fi
-
-fi
+#if [ ! -e $SINGULARITY_DIR/bids-apps ]
+#then
+#	mkdir -p $SINGULARITY_DIR/bids-apps 
+#
+#	if [ ! "$?" = 0 -o ! -e $SINGULARITY_DIR ]
+#	then
+#		echo "neuroglia-helpers init error:  Unable to set local SINGULARITY_DIR to $SINGULARITY_DIR"
+#	fi
+#
+#fi
 
 
 #----------------------------------------------

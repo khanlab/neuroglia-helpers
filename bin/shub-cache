@@ -1,122 +1,49 @@
 #!/bin/bash
 
-execpath=`dirname $0`
-execpath=`realpath $execpath`
+cpus=4
+mem=32000
+minutes=30
 
-source ${NEUROGLIA_BASH_LIB}
-if [ ! "$?" = 0 ]
+
+if [ "$#" -lt 1 ]
 then
-	echo "Error initializing neuroglia-helpers, quitting $0"
-	exit 1
-fi
-
-#if [ ! -n "$SINGULARITY_DIR" ]
-#then
-#	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
-#	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
-#fi
-
-if [  "$#" -lt  1 ]
-then
-	echo "Usage: $0 {shub/docker}://org/repo:tag" >&2
+	echo "Usage: $0 <URI>" >&2
 	echo "" >&2
-	echo " To simply check if path is downloaded, use: $0 {shub/docker}://org/repo:tag -n  (this returns non-zero exit code if does not exist)" >&2
-	echo " Note: does not replace container -- use shub-upgrade to replace existing container" >&2
+	echo "Checks if singularity container is cached and ready to run, running download with salloc/srun if not" >&2
+	echo " - use this to download and cache your singularity containers, since this cannot be done on login node -" >&2
+	echo "" >&2
+	echo " e.g: $0 docker://khanlab/tar2bids:latest" >&2
 	exit 1
 fi
 
-#input is shub URL
 
 url=$1
 
-suff=${url##*://}
-tag=${suff#*:}
-org=${suff%%/*}
-name=${suff#*/}
-name=${name%:*}
-
-bra=master
-
-
-#check version of singularity (2 vs 3)
-version=`singularity --version`
-version=${version##*\ }
-version=${version:0:1}
-
-hub=${url%%://*}
-if [ "$hub" = "docker" ]
+# if SINGULARITY_TMPDIR is not set, then we cannot pull locally, need to submit job
+if [ "$SINGULARITY_TMPDIR" = "" ]
 then
-	if [ "$version" = "2" ]
-	then
-	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.img
-	dlpath=$SINGULARITY_DIR/${name}-${tag}.simg
-	elif [ "$version" = "3" ]
-	then
-	cached=$SINGULARITY_DIR/bids-apps/${org}_${name}_${tag}.sif
-	dlpath=$cached
-	fi
-elif [ "$hub" = "shub" ]
-then
-	if [ "$version" = "2" ]
-	then
-	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
-	dlpath=$cached
-	elif [ "$version" = "3" ]
-	then
-	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.sif
-	dlpath=$cached
-	fi
+	# so if singularity run takes longer than 5s, container is not cached..
+	echo  "Checking if container is already downloaded ... " >&2
+	timeout 10s singularity run $url > /dev/null
 
-else
-	echo "Must use docker:// or shub://"  >&2
-	exit 1
+	case $? in 
+		255) echo "ERROR: Container does not exist" >&2; exit 1;;
+
+		124) echo "Container not downloaded, allocating job to download ... " >&2
+		# so run the command on an interactive job instead
+		salloc -J shub-cache -D `pwd` --time=0:${minutes}:00 --cpus-per-task=$cpus --ntasks=1 --mem=$mem --account=$CC_COMPUTE_ALLOC srun singularity run $url >&2 ;;
+	esac	
 fi
 
-if [ "$#" -gt 1 ]
+#at this point, it is downloaded, or we are on node that supports download
+singularity run $url >&2
+if [ "$?" == 255 ]
 then
- if [ "$2"  = "-n" ]
- then
-	#don't download, just check if exists
-	if [ ! -e $cached ]
-	then
-		echo "Container does not exist, exiting with nonzero exit code"  >&2
-		echo $cached
-		exit 1
-	else
-		echo "Container does exist, exiting with zero (success) exit code"  >&2
-		echo $cached
-		exit 0
-	fi
- fi
+echo "ERROR: Container does not exist" >&2
+exit 1
 fi
 
-if [ ! -e $cached ]
-then
-	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
-	export SINGULARITY_CACHEDIR=$SINGULARITY_DIR
-	if [ "$version" = "2" ]
-	then
-	rm -f $dlpath
-	singularity pull $url >&2 
-	if [ "$?" = 0 ]
-	then
-		mv -v $dlpath $cached >&2
-	fi
-	elif [ "$version" = "3" ]
-	then
-	#singularity v3 can specify pull path directly
-	singularity pull $cached $url >&2 
-	fi
-
-	if [ ! -e $cached ]
-	then
-		echo ERROR: could not pull image >&2
-		exit 1
-	fi
-
-		
-fi
-
-
-echo `realpath $cached`
+echo "Ready to run:" >&2
+echo $url
 exit 0
+

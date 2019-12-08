@@ -170,22 +170,7 @@ then
 	echo "$app_name, built-in default options: $base_opts"
 	echo "Usage for bids app:"
 
-
-	# if SINGULARITY_TMPDIR is not set, then we cannot pull,
-	if [ "$SINGULARITY_TMPDIR" = "" ]
-	then
-		# so if singularity run takes longer than 5s, container is not cached..
-		timeout 10s singularity run $url
-		if [ "$?" == 124 ] 
-		then
-			# so run the command on an interactive job instead
-			sin-run $url
-		fi
-	else
-		# if SINGULARITY_TMPDIR is set, then we can pull to cache if needed
-		singularity run $url
-	fi
-
+	shub-cache $url
 	
 	exit 1
 fi

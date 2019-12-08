@@ -9,29 +9,13 @@ fmriprep_1.2.6-1	docker://poldracklab/fmriprep:1.2.6-1	--nthreads 8 --n_cpus 8 -
 fmriprep_1.1.8	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
 fmriprep_1.1.8_noFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack --fs-no-reconall	8core32gb12h
 fmriprep_1.1.8_withFS	docker://poldracklab/fmriprep:1.1.8	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Long
-fmriprep_1.1.4	docker://poldracklab/fmriprep:1.1.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.1.1	docker://poldracklab/fmriprep:1.1.1	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
-fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
-fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
-fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
 mriqc_0.15.1	docker://poldracklab/mriqc:0.15.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
-mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
-mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w /scratch/${USER}/${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}	Regular
 prepdwi_v0.0.12c	docker://khanlab/prepdwi:v0.0.12c	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.12c_bedpost	docker://khanlab/prepdwi:v0.0.12c	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_v0.0.12c_7T	docker://khanlab/prepdwi:v0.0.12c	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 prepdwi_v0.0.12c_bedpost_7T	docker://khanlab/prepdwi:v0.0.12c	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
-prepdwi_v0.0.12b	docker://khanlab/prepdwi:v0.0.12b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
-prepdwi_v0.0.12b_bedpost	docker://khanlab/prepdwi:v0.0.12b	--n_cpus 8 -w $SLURM_TMPDIR	Regular
-prepdwi_v0.0.12b_7T	docker://khanlab/prepdwi:v0.0.12b	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
-prepdwi_v0.0.12b_bedpost_7T	docker://khanlab/prepdwi:v0.0.12b	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
-prepdwi_v0.0.12a	docker://khanlab/prepdwi:v0.0.12a	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
-prepdwi_v0.0.12a_bedpost	docker://khanlab/prepdwi:v0.0.12a	--n_cpus 8 -w $SLURM_TMPDIR	Regular
-prepdwi_v0.0.12a_7T	docker://khanlab/prepdwi:v0.0.12a	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
-prepdwi_v0.0.12a_bedpost_7T	docker://khanlab/prepdwi:v0.0.12a	--n_cpus 8 -w $SLURM_TMPDIR --grad_coeff_file ${GRAD_COEFF_7T}	Regular
 prepdwi_dev	docker://khanlab/prepdwi:latest	--no-bedpost --n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_dev_p3hcp	docker://khanlab/prepdwi:latest	--no-bedpost --n_cpus 5 -w $SLURM_TMPDIR --nprobseeds 1500	5core32gb24h
 prepdwi_dev_p3hcp_long	docker://khanlab/prepdwi:latest	--no-bedpost --n_cpus 5 -w $SLURM_TMPDIR --nprobseeds 5000	5core32gb72h
@@ -45,12 +29,11 @@ diffparc-sumo_dev_BF	docker://khanlab/diffparc-sumo:latest	--skip_postproc --par
 qsm_sstv_v0.1.1	shub://AlanKuurstra/qsm_sstv:v0.1.1	--SS_TV_lagrange_parameter 0.4 --mag_match_pattern *part-mag_echo* --phase_match_pattern *part-phase_echo* --keep_unnecessary_outputs	Short
 mp2rage_correction_v0.0.5	docker://khanlab/mp2rage_correction:v0.0.5		ShortSkinny
 mp2rage_correction_v0.0.4a	docker://khanlab/mp2rage_correction:v0.0.4a		ShortSkinny
-mp2rage_correction_v0.0.4	docker://khanlab/mp2rage_correction:v0.0.4		ShortSkinny
 mp2rage_correction_dev	docker://khanlab/mp2rage_correction:latest		ShortSkinny
-mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
 gradcorrect_v0.0.3	docker://khanlab/gradcorrect:v0.0.3	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
 gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
-freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file ${FS_LICENSE_FILE} --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
+gradcorrect_dev	docker://khanlab/gradcorrect:latest	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
+freesurfer_v6.0.1-subfields	/project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file ${FS_LICENSE_FILE} --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular
 prepT2space_v0.0.2b	shub://khanlab/prepT2space:v0.0.2b		Regular
 beast_v0.0.2	docker://khanlab/beast:v0.0.2	--BEAST_PATH ${BEAST_PATH}	ShortSkinny
 despot1_dev	docker://khanlab/despot1:latest		ShortSkinny

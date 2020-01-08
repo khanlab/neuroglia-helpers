@@ -256,9 +256,9 @@ then
  list=$job_dir/in_participants.tsv
  echo "$list does not exist, creating temporary one in $list" >&2 
  echo "participant_id"> $list
- pushd $bids_dir
+ pushd $bids_dir >&2 
  ls -d sub-* >> $list
- popd 
+ popd  >&2 
 
 fi
 
@@ -270,9 +270,9 @@ then
        	list=$job_dir/in_participants.tsv
 	echo "$list invalid (no header row), creating temporary one in $list" >&2 
 	 echo "participant_id"> $list
-	 pushd $bids_dir
+	 pushd $bids_dir >&2
 	 ls -d sub-* >> $list
-	 popd 
+	 popd >&2
 
 fi
 

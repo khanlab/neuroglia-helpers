@@ -73,3 +73,18 @@ function print_app_list_long {
 
 }
 
+
+function print_app_list_names_python {
+
+	app_list=$NEUROGLIA_DIR/bids-apps-python.tsv
+	nlines=`cat $app_list | wc -l`
+	tail -n $((nlines-1)) $app_list | awk -F '\t' '{print $1}' | column -c 150
+}
+
+function print_app_list_long_python {
+
+	app_list=$NEUROGLIA_DIR/bids-apps-python.tsv
+	cat $app_list | awk -F '\t' '{print $1 "\t"  $2  "\t" $4 }' | column -t
+
+}
+

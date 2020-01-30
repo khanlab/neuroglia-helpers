@@ -1,0 +1,2 @@
+name	url	base_options	job_template
+avgRuns	file:///scratch/akhanf/test_avg_t2/avgRuns/avgRuns.py		Regular

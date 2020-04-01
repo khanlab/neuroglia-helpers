@@ -92,10 +92,17 @@ fi
 
 if [ ! -e $cached ]
 then
-	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
+	echo "container not found, attempting download with singularity pull" >&2
+	if [ ! "${HOSTNAME:4:3}" = "vdi" ]
+	then
+		echo "WARNING: Detected incompatible host: $HOSTNAME" >&2
+		echo "singularity pull on graham login or compute nodes will likely fail, please log-in to gra-vdi (VNC) to pull containers" >&2
+	fi
+
 	export SINGULARITY_CACHEDIR=$SINGULARITY_DIR
 	if [ "$version" = "2" ]
 	then
+	export SINGULARITY_PULLFOLDER=$SINGULARITY_DIR
 	rm -f $dlpath
 	singularity pull $url >&2 
 	if [ "$?" = 0 ]
@@ -105,7 +112,8 @@ then
 	elif [ "$version" = "3" ]
 	then
 	#singularity v3 can specify pull path directly
-	singularity pull $cached $url >&2 
+	SINGULARITY_TMPDIR=/tmp 
+	singularity pull  $cached $url  >&2 
 	fi
 
 	if [ ! -e $cached ]

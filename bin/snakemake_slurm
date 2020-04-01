@@ -1,0 +1,2 @@
+source $SNAKEMAKE_VENV_DIR/activate
+snakemake -j 100  --immediate-submit --notemp --cluster="$NEUROGLIA_DIR/etc/snakemake_slurm_submit.py {dependencies}" $@

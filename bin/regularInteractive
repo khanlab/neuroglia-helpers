@@ -19,7 +19,7 @@ do
 		Y) echo "enabling x11 forwarding"
              salloc_opts="$salloc_opts --x11";;
 		g) echo "enabling 1 gpu, with $CC_GPU_ALLOC"
-            salloc_opts="$salloc_opts --gres=gpu:1"
+            salloc_opts="$salloc_opts --gres=gpu:t4:1"
             acct=$CC_GPU_ALLOC;;
 		j) echo "enabling jupyter, srun $jupyter_script"
             srun="srun $jupyter_script";;

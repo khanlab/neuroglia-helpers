@@ -15,7 +15,6 @@ dependencies = set(sys.argv[1:-1])
 job_properties = read_job_properties(jobscript)
 
 
-
 # get account from CC_COMPUTE_ALLOC, else supply default account
 account = os.getenv('CC_COMPUTE_ALLOC', default='ctb-akhanf')
 
@@ -38,6 +37,11 @@ if job_properties["type"]=='single':
     else:  
         mem_mb = 4000
 
+    if 'gpus' in job_properties["resources"].keys():
+        gpus = job_properties["resources"]["gpus"]
+    else:  
+        gpus = 0
+
     #for single job, threads already set to 1 by default
     threads = job_properties["threads"]
 
@@ -55,6 +59,7 @@ elif job_properties["type"]=='group':
     time = 60*24
     mem_mb = 128000
     threads = 32
+    gpus = 0
 
 else:
     raise NotImplementedError(f"Don't know what to do with job_properties['type']=={job_properties['type']}")
@@ -73,8 +78,13 @@ if not os.path.exists(os.path.dirname(log)):
 # collect all command-line options in an array
 cmdline = ["sbatch"]
 
+if gpus > 0:
+    gpu_arg = f'--gres=gpu:t4:{gpus}'
+else:
+    gpu_arg = ''
+
 # set all the slurm submit options as before
-slurm_args = " --parsable --account={account} --time={time} --mem={mem_mb} --cpus-per-task={threads} --output={log} ".format(account=account, time=time, mem_mb=mem_mb, threads=threads,log=log)
+slurm_args = f" --parsable --account={account} {gpu_arg} --time={time} --mem={mem_mb} --cpus-per-task={threads} --output={log} "
 
 cmdline.append(slurm_args)
 

@@ -14,7 +14,7 @@ then
   echo "This script is used to submit batches  as cluster jobs, with the final batch dependent on the previous ones"
   echo ""
   echo "Runs the following (with RULENAME, N specified as required args):"
-  echo "    snakemake -j $cpus --resources mem_mb=$mem gpus=$gpus --use-singularity --batch RULE_NAME=i/NUM_BATCHES --nolock  "
+  echo "    snakemake -j $cpus --resources mem_mb=$mem gpus=$gpus --use-singularity --use-envmodules --batch RULE_NAME=i/NUM_BATCHES --nolock  "
   echo "" 
   exit 1
 fi
@@ -38,7 +38,7 @@ echo "#SBATCH --account=${account}" >> $job
 echo "#SBATCH --output=jobs/batch_rule-${rule}_N-${N}.%A_%a.out" >> $job
 
 echo cd $PWD >> $job
-echo snakemake -j $cpus --resources mem_mb=$mem gpus=$gpus --use-singularity --batch ${rule}=\${SLURM_ARRAY_TASK_ID}/${N} --nolock $@ >> $job
+echo snakemake -j $cpus --resources mem_mb=$mem gpus=$gpus --use-singularity --use-envmodules --batch ${rule}=\${SLURM_ARRAY_TASK_ID}/${N} --nolock $@ >> $job
 
 #submit array job for 1-$((N-1))
 message=`sbatch --array=1-$((N-1)) $job`

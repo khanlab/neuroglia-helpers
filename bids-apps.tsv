@@ -1,4 +1,5 @@
 name	url	base_options	job_template
+fmriprep_20.0.5	docker://poldracklab/fmriprep:20.0.5	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
 fmriprep_1.5.4	docker://poldracklab/fmriprep:1.5.4	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
 fmriprep_1.5.0_heavy	docker://poldracklab/fmriprep:1.5.0	--nthreads 16 --n_cpus 32 --mem_mb 128000 --omp-nthreads 16 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	LongFat
 fmriprep_1.5.0	docker://poldracklab/fmriprep:1.5.0	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular

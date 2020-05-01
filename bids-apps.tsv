@@ -62,3 +62,4 @@ mdt-bids_v0.1	docker://khanlab/mdt-bids:v0.1		ShortFat
 surfmorph_v0.1	docker://khanlab/surfmorph:v0.1		ShortSkinny
 surfmorph_dev	docker://khanlab/surfmorph:latest		ShortSkinny
 qsiprep_0.8.0RC3	docker://pennbbl/qsiprep:0.8.0RC3	-w $SLURM_TMPDIR --fs-license-file ${FS_LICENSE_FILE}	Regular
+fmriprep_ciftify_v1.3.2-2.3.3   docker pull tigrlab/fmriprep_ciftify:v1.3.2-2.3.3       Regular

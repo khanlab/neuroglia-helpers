@@ -50,7 +50,6 @@ IFS=$'\n'
 
 for root_dir in `find $@ -maxdepth 0 -type d \( ! -iname \*.ARCHIVED \)`
 do
-    echo "start of loop"
     root_abspath=`realpath $root_dir`
     
     out_file=$out_dir/usage`echo $root_abspath |  sed 's|[/ ]|_|g'`.txt
@@ -61,8 +60,6 @@ do
     echo "---------,---------,--------,------" >> $tmpfile
     for dir in `find $root_dir -mindepth 1 $maxdepth_opt -type d \( ! -name \*.ARCHIVED \)`
     do 
-        echo "about to dive in $dir"
-        continue
         abspath=`realpath $dir`
         nfiles=`find $dir -type f  | wc -l`
         nbytes=`du -s $dir | awk '{print $1}'`

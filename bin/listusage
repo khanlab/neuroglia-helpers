@@ -1,0 +1,83 @@
+#!/bin/bash
+
+
+set -o pipefail
+
+depth=0
+sortcol=2
+min_nfiles=10
+out_dir=$HOME/listusage
+maxdepth_opt=''
+
+
+
+function usage {
+ echo "Usage: $0 [-d maxdepth] [-c col_num_to_sort_by] FOLDER(S)"
+ echo "  -d maxdepth            : (default = )"
+ echo "  -c col_num_to_sort_by  : (default = $sortcol)"
+ #echo "  -m min_nfiles          : (default = $min_nfiles)"
+ echo "  -o output_csv_dir      : (default = $out_dir)"
+
+
+}
+if [ "$#" -lt 1 ]
+then
+    usage
+    exit 1
+fi
+
+while getopts "m:d:c:o:" options; do
+ case $options in
+    d ) maxdepth_opt="-maxdepth $OPTARG";;
+    c ) sortcol=$OPTARG;;
+    m ) min_nfiles=$OPTARG;;
+    o ) out_dir=$OPTARG;;
+ * ) usage
+    exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+
+mkdir -p $out_dir
+
+
+tmpfile=/tmp/filelist_$RANDOM.csv
+
+OIFS="$IFS"
+IFS=$'\n'
+
+for root_dir in `find $@ -maxdepth 0 -type d \( ! -iname \*.ARCHIVED \)`
+do
+    echo "start of loop"
+    root_abspath=`realpath $root_dir`
+    
+    out_file=$out_dir/usage`echo $root_abspath |  sed 's|[/ ]|_|g'`.txt
+
+   
+    echo "writing to out_file=$out_file" 
+    echo "directory,num_files,total_gb,avg_gb" > $tmpfile
+    echo "---------,---------,--------,------" >> $tmpfile
+    for dir in `find $root_dir -mindepth 1 $maxdepth_opt -type d \( ! -name \*.ARCHIVED \)`
+    do 
+        echo "about to dive in $dir"
+        continue
+        abspath=`realpath $dir`
+        nfiles=`find $dir -type f  | wc -l`
+        nbytes=`du -s $dir | awk '{print $1}'`
+        nbytes=${nbytes%\  *}
+        n_gb=`echo "scale=4; $nbytes/1000000" | bc`
+        if [ ! "$nfiles" = "0" -a "$nfiles" -gt "$min_nfiles" ]
+        then
+            avg_bytes=`echo "scale=2; $n_gb/$nfiles" | bc`
+            echo "$abspath,$nfiles,$n_gb,$avg_bytes"
+         fi
+    done | sort -t, -g -k ${sortcol} -r  >> $tmpfile
+
+    cat $tmpfile | column -t -s ','  | tee  $out_file
+    rm -f $tmpfile
+
+    echo "end of loop"
+done #looping over root_dir
+

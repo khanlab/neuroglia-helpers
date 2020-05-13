@@ -57,8 +57,8 @@ echo " Singularity options: $SINGULARITY_OPTS"
 echo " Neuroglia container: $NEUROGLIA_URI"
 echo " CPU account: $CC_COMPUTE_ALLOC"
 
-echo "- printGroupUsage currently disabled -"
-#$NEUROGLIA_DIR/etc/printGroupUsage ${CC_COMPUTE_ALLOC}_cpu
+#echo "- printGroupUsage currently disabled -"
+$NEUROGLIA_DIR/etc/printGroupUsage ${CC_COMPUTE_ALLOC}_cpu
 
 echo "***"
 

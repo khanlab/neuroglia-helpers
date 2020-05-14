@@ -1,0 +1,130 @@
+#!/bin/bash
+
+
+set -o pipefail
+
+min_avgmb=20
+dry_run=0
+time_per_gb=2 #walltime, minutes per gb
+account=ctb-akhanf
+min_nfiles=500
+maxdepth=2
+job_dir=$SCRATCH/archivejobs
+
+function usage {
+ echo "--------------------------------------------------------------------------------"
+ echo "This tool will take folder(s) in a project filesystem (e.g. rrg-akhanf), "
+ echo "find the sub-folders that are under the min_avgsize threshold, and tar "
+ echo "replace it with a tar file, submitting a job in each case."
+ echo ""
+ echo "Usage: $0 [-o out_prefix] [-m min_nfiles] [-a account] [-t walltime] FOLDER(S)"
+ echo "  -N min_nfiles              : (default = $min_nfiles)"
+ echo "  -a account                 : cpu allocation (default = $account)"
+ echo "  -t time_per_gb             : job request time (default = $time_per_gb  [2 minutes per gb])"
+ echo "  -m min_avgmb               : (default = $min_avgmb)"
+ echo "  -o output_job_dir          : (default = $jobs_dir)"
+ echo "  -n                         : dry-run "
+ echo "--------------------------------------------------------------------------------"
+
+
+
+}
+if [ "$#" -lt 1 ]
+then
+    usage
+    exit 1
+fi
+
+
+while getopts "N:a:t:no:m:L" options; do
+ case $options in
+    N ) echo "min_nfiles=$OPTARG"; min_nfiles=$OPTARG;;
+    a ) echo "account=$OPTARG"; account=$OPTARG;;
+    t ) echo "time_per_gb=$OPTARG"; time_per_gb=$OPTARG;;
+    n ) echo "enabling dry-run"; dry_run=1;;
+    o ) echo "job_dir=$OPTARG"; job_dir=$OPTARG;;
+    m ) echo "setting min_avgmb=$OPTARG"; min_avgmb=$OPTARG;;
+    L ) echo "running local"; run_local=1;;
+    * ) usage
+    exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+
+
+OIFS="$IFS"
+IFS=$'\n'
+
+mkdir -p $job_dir
+
+skip_path=NOSKIPPATH
+for dir in `find $@ -mindepth 1 -maxdepth ${maxdepth} -type d \( ! -iname \*.ARCHIVED \)`
+do 
+
+    abspath=`realpath $dir`
+   
+     #here, check if skip_path is contained in abspath -- if it is, then we skip this (as has been archived already)..
+    if [[ $abspath  == "${skip_path}/"* ]]
+    then
+        #skipping $abspath, already archiving parent folder
+        continue
+    fi
+
+
+    #split off target tarname from rest of path
+    tarname=${abspath##*/}
+    rootdir=${abspath%/*}
+    
+    tarfile=${rootdir}/${tarname}.tar
+
+
+    nfiles=`find $dir -type f  | wc -l`
+    nbytes=`du -s $dir | awk '{print $1}'`
+    nbytes=${nbytes%\  *}
+    n_gb=`echo "scale=4; $nbytes/1000000" | bc`
+    avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
+
+
+    if (( $(echo "$avg_mb < $min_avgmb" | bc) ))
+    then
+    if  [ "$nfiles" -gt  "$min_nfiles" ]
+    then
+
+    time_minutes=`echo "scale=0; ($n_gb*$time_per_gb+0.5)/1" | bc`
+    if [ "$time_minutes" -lt 10 ]
+    then 
+        time_minutes=10 #minimum 10 minutes
+    fi
+
+    job_file=$job_dir/archive`echo $abspath |  sed 's|[/ ]|_|g'`.job
+    echo "$dir: avg_mb=$avg_mb, nfiles=$nfiles, total_gb=$n_gb -> archiving to $tarfile"
+    
+
+    echo "#!/bin/bash" > $job_file
+    echo "tar -C $rootdir -cvf $tarfile $tarname && mv $abspath $abspath.ARCHIVED" >> $job_file
+    pushd $job_dir > /dev/null
+    if [ "$dry_run" = 1 ]
+    then
+        echo sbatch --account=$account --time=$time_minutes --cpus-per-task=1 --ntasks=1 --mem=4000mb $job_file
+    else
+        sbatch --account=$account --time=$time_minutes --cpus-per-task=1 --ntasks=1 --mem=4000mb $job_file
+    fi
+    popd > /dev/null
+
+    else
+        echo "$dir: nfiles=$nfiles less than $min_nfiles -> skipping"
+    fi
+
+    else
+        echo "$dir: avg_mb=$avg_mb greater than $min_avgmb -> skipping"
+        
+    fi    
+
+    skip_path=${abspath}
+
+done
+
+
+

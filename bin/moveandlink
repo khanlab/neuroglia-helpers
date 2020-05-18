@@ -1,0 +1,123 @@
+#!/bin/bash
+
+
+set -o pipefail
+
+dest_project=ctb-akhanf
+min_avgmb=20
+dry_run=0
+
+
+function usage {
+ echo "--------------------------------------------------------------------------------"
+ echo "This tool will move the folder(s) in a project filesystem (e.g. rrg-akhanf) to "
+ echo "another project folder (e.g. ctb-akhanf), replace the folder with a symlink, then"
+ echo "chgrp to the destination"
+ echo "" 
+ echo "NOTE: unless forced, will skip any folders where avg file size is < $min_avgmb"
+ echo ""
+ echo "Usage: $0 [-d dest_project] [-m min_avgmb] [-f] [-n] FOLDER(S)"
+ echo "  -d dest_project            : (default = $dest_project)"
+ echo "  -m min_avgmb               : (default = $min_avgmb)"
+ echo "  -f                         : force move (make sure you clean up afterwards!)"
+ echo "  -n                         : dry-run "
+ echo "--------------------------------------------------------------------------------"
+
+
+}
+if [ "$#" -lt 1 ]
+then
+    usage
+    exit 1
+fi
+
+
+# only move folders that have 
+# avgmb > min_avgmb
+
+use_force=0
+
+while getopts "m:d:fn" options; do
+ case $options in
+    m ) echo "setting min_avgmb=$OPTARG"; min_avgmb=$OPTARG;;
+    d ) echo "setting dest_project=$OPTARG"; dest_project=$OPTARG;;
+    f ) echo "enabling force move"; use_force=1;;
+    n ) echo "enabling dry-run"; dry_run=1;;
+ * ) usage
+    exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+out_prefix=/project/${dest_project}
+skip_path=NOSKIPPATH
+
+
+OIFS="$IFS"
+IFS=$'\n'
+
+
+for dir in `find $@  -maxdepth 0 -type d `
+do
+
+    abspath=`realpath $dir`
+   
+ 
+    #split off target tarname from rest of path
+    folder_name=${abspath##*/}
+    in_rootdir=${abspath%/*}
+    
+    #replace existing prefix with out_prefix
+    out_rootdir=${out_prefix}/${in_rootdir#/project/*/}
+
+    out_path=${out_rootdir}/${folder_name}
+
+
+    #here, check if skip_path is contained in in_root_dir -- if it is, then we skip this (as has been moved already)..
+    # TODO: add this check -- this isn't working yet!!!
+    if [[ $abspath  == "${skip_path}/"* ]]
+    then
+        echo "skipping $abspath, already moved $skip_path"
+        continue
+    fi
+
+    nfiles=`find $dir -type f  | wc -l`
+
+    if [ "$nfiles" = "0" ]
+    then 
+        continue
+    fi
+
+    nbytes=`du -s $dir | awk '{print $1}'`
+    nbytes=${nbytes%\  *}
+    n_gb=`echo "scale=4; $nbytes/1000000" | bc`
+    avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
+
+
+    if [ "$use_force" = "0" ]
+    then    
+        if (( $(echo "$avg_mb < $min_avgmb" | bc)  )) 
+        then
+           echo "skipping $abspath, avg_mb: $avg_mb, nfiles: $nfiles" 
+           continue
+        fi 
+    fi
+
+#    echo "moving $abspath, avg_mb: $avg_mb, nfiles: $nfiles"
+
+    if [ "$dry_run" = "1" ]
+    then
+    echo "mkdir -p $out_rootdir && mv -v $abspath $out_path && ln -s $out_path -t $in_rootdir && chgrp -Rv ctb-akhanf $out_path"
+    else
+    mkdir -p $out_rootdir && mv -v $abspath $out_path && ln -s $out_path -t $in_rootdir && chgrp -Rv ctb-akhanf $out_path
+    fi
+    #if we move and link a folder, we should skip any folders down that tree.. 
+
+    skip_path=${abspath}
+
+
+done
+
+
+

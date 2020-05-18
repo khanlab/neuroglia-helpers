@@ -1,0 +1,95 @@
+#!/bin/bash
+
+
+set -o pipefail
+
+depth=0
+sortcol=2
+min_nfiles=100
+min_avgmb=20
+out_dir=$SCRATCH/listusage
+maxdepth=5
+
+
+
+function usage {
+ echo "--------------------------------------------------------------------------------"
+ echo "This tool takes a folder and recursively totals the file number and size count"
+ echo "Use this to verify what folders need to be tarred  to lower file number count."
+ echo "  NOTE: Minimum average file size of $min_avgmb MB is recommended for folders "
+ echo "        on project space"
+ echo ""
+ echo "Usage: $0 [-M maxdepth] [-c col_num_to_sort_by] [-N min_nfiles] [-m min_avgmb] [-o output_csv_dir] FOLDER"
+ echo "  -M maxdepth            : (default = $maxdepth)"
+ echo "  -c col_num_to_sort_by  : (default = $sortcol)"
+ echo "  -N min_nfiles          : (default = $min_nfiles)"
+ echo "  -m min_avgmb           : (default = $min_avgmb)"
+ echo "  -o output_csv_dir      : (default = $out_dir)"
+ echo "--------------------------------------------------------------------------------"
+
+
+}
+if [ "$#" -lt 1 ]
+then
+    usage
+    exit 1
+fi
+
+while getopts "M:c:N:m:o:" options; do
+ case $options in
+    M ) maxdepth=$OPTARG;;
+    c ) sortcol=$OPTARG;;
+    N ) min_nfiles=$OPTARG;;
+    m ) min_avgmb=$OPTARG;;
+    o ) out_dir=$OPTARG;;
+ * ) usage
+    exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+
+mkdir -p $out_dir
+
+
+tmpfile=/tmp/filelist_$RANDOM.csv
+
+OIFS="$IFS"
+IFS=$'\n'
+
+for root_dir in `find $@ -maxdepth 0 -type d \( ! -iname \*.ARCHIVED \)`
+do
+    root_abspath=`realpath $root_dir`
+    
+    out_file=$out_dir/usage`echo $root_abspath |  sed 's|[/ ]|_|g'`.txt
+
+
+    echo "Writing to both stdout and $out_file ..." >&2  
+    echo "directory,num_files,total_gb,avg_mb,flagged" > $tmpfile
+    echo "---------,---------,--------,------,-------" >> $tmpfile
+    for dir in `find $root_dir -maxdepth ${maxdepth} -type d \( ! -name \*.ARCHIVED \)`
+    do 
+        abspath=`realpath $dir`
+        nfiles=`find $dir -type f  | wc -l`
+        nbytes=`du -s $dir | awk '{print $1}'`
+        nbytes=${nbytes%\  *}
+        n_gb=`echo "scale=4; $nbytes/1000000" | bc`
+        
+        if [ ! "$nfiles" = "0" -a "$nfiles" -gt "$min_nfiles" ]
+        then
+            avg_bytes=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
+            if (( $(echo "$avg_bytes < $min_avgmb" | bc)  )) 
+            then
+            echo "$abspath,$nfiles,$n_gb,$avg_bytes,1"
+            else
+            echo "$abspath,$nfiles,$n_gb,$avg_bytes,0"
+            fi
+         fi
+    done | sort -t, -g -k ${sortcol} -r  >> $tmpfile
+
+    cat $tmpfile | column -t -s ','  | tee  $out_file
+    rm -f $tmpfile
+
+done #looping over root_dir
+

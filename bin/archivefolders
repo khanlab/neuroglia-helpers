@@ -17,7 +17,7 @@ function usage {
  echo "find the sub-folders that are under the min_avgsize threshold, and tar "
  echo "replace it with a tar file, submitting a job in each case."
  echo ""
- echo "Usage: $0 [-o out_prefix] [-m min_nfiles] [-a account] [-t walltime] FOLDER(S)"
+ echo "Usage: $0 [-N min_nfiles] [-a account] [-t time_per_gb] [-m min_avgmb] [-o output_job_dir] [-n] FOLDER(S)"
  echo "  -N min_nfiles              : (default = $min_nfiles)"
  echo "  -a account                 : cpu allocation (default = $account)"
  echo "  -t time_per_gb             : job request time (default = $time_per_gb  [2 minutes per gb])"
@@ -36,7 +36,7 @@ then
 fi
 
 
-while getopts "N:a:t:no:m:L" options; do
+while getopts "N:a:t:no:m" options; do
  case $options in
     N ) echo "min_nfiles=$OPTARG"; min_nfiles=$OPTARG;;
     a ) echo "account=$OPTARG"; account=$OPTARG;;
@@ -44,7 +44,6 @@ while getopts "N:a:t:no:m:L" options; do
     n ) echo "enabling dry-run"; dry_run=1;;
     o ) echo "job_dir=$OPTARG"; job_dir=$OPTARG;;
     m ) echo "setting min_avgmb=$OPTARG"; min_avgmb=$OPTARG;;
-    L ) echo "running local"; run_local=1;;
     * ) usage
     exit 1;;
  esac

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo ""
+echo "Requesting interactive node to start Jupyter Lab server using snakemake virtualenv..."
+echo ""
+echo "  To connect to it, first run sshuttle on your local machine:"
+echo "     sshuttle --dns -Nr $USER@graham.sharcnet.ca"
+echo ""
+echo "  Then copy and paste the http://gra###.graham.sharcnet:8888?token=  URL in your browser"
+echo ""
+
+source $SNAKEMAKE_VENV_DIR/activate && salloc --account=ctb-akhanf --time=3:00:00 --cpus-per-task=8 --mem=32000 srun $NEUROGLIA_DIR/etc/jupyter.sh ; deactivate
+

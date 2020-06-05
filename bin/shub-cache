@@ -65,6 +65,13 @@ then
 	then
 	cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.sif
 	dlpath=$cached
+    if [ ! -e $cached ]
+    then
+        if [ -e $SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg ]
+        then
+            cached=$SINGULARITY_DIR/${org}-${name}-${bra}-${tag}.simg
+        fi
+    fi
 	fi
 
 else

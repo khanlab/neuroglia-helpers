@@ -7,7 +7,7 @@ min_avgmb=20
 dry_run=0
 time_per_gb=2 #walltime, minutes per gb
 account=ctb-akhanf
-min_nfiles=500
+min_nfiles=100
 maxdepth=2
 job_dir=$SCRATCH/archivejobs
 
@@ -83,8 +83,12 @@ do
     nbytes=`du -s $dir | awk '{print $1}'`
     nbytes=${nbytes%\  *}
     n_gb=`echo "scale=4; $nbytes/1000000" | bc`
-    avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
-
+    if [ "$n_gb" = 0 ]
+    then
+       avg_mb=0
+    else
+       avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
+    fi
 
     if (( $(echo "$avg_mb < $min_avgmb" | bc) ))
     then

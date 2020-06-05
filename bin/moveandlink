@@ -82,6 +82,10 @@ do
         continue
     fi
 
+
+    if [ "$use_force" = "0" ]
+    then    
+
     nfiles=`find $dir -type f  | wc -l`
 
     if [ "$nfiles" = "0" ]
@@ -95,8 +99,6 @@ do
     avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
 
 
-    if [ "$use_force" = "0" ]
-    then    
         if (( $(echo "$avg_mb < $min_avgmb" | bc)  )) 
         then
            echo "skipping $abspath, avg_mb: $avg_mb, nfiles: $nfiles" 

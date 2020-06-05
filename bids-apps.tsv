@@ -51,7 +51,7 @@ mp2rage_correction_v0.0.5	docker://khanlab/mp2rage_correction:v0.0.5		ShortSkinn
 mp2rage_correction_v0.0.4a	docker://khanlab/mp2rage_correction:v0.0.4a		ShortSkinny
 mp2rage_correction_dev	docker://khanlab/mp2rage_correction:latest		ShortSkinny
 mp2rage_correction_v0.0.3	shub://khanlab/mp2rage_correction:v0.0.3		ShortSkinny
-gradcorrect_v0.0.3a docker://khanlab/gradcorrect:v0.0.3a  --grad_coeff_file ${GRAD_COEFF_7T}  4core16gb12h
+gradcorrect_v0.0.3a	docker://khanlab/gradcorrect:v0.0.3a	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
 gradcorrect_v0.0.3	docker://khanlab/gradcorrect:v0.0.3	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
 gradcorrect_v0.0.2	docker://khanlab/gradcorrect:v0.0.2	--grad_coeff_file ${GRAD_COEFF_7T}	4core16gb12h
 freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps/khanlab_freesurfer_v6.0.1-subfields.img	--license_file ${FS_LICENSE_FILE} --n_cpus 8  --skip_bids_validator --hires_mode enable	Regular

@@ -1,0 +1,29 @@
+# Trigger this workflow when push or pull request to master,and only bids-apps.tsv or validate_bids-apps.tsv.py modified
+
+name: valdate bids-apps.tsv
+on: 
+  push: 
+    branches:
+    - master
+    paths:
+    - "*bids-apps.tsv"
+    - "*validate_bids-apps.tsv.py"
+  pull_request:
+    branches:
+    - master
+    paths:
+    #- "*.tsv"
+    - "*bids-apps.tsv"
+    - "*validate_bids-apps.tsv.py"
+
+
+jobs:
+  validate:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      #- name: install singularity
+      #run: bash .github_scripts/install_singularity.sh
+      - name: validate bids-apps.tsv
+        run: python3 validate_bids-apps.tsv.py

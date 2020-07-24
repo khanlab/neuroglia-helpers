@@ -1,0 +1,3 @@
+docker://khanlab/neuroglia-core:latest
+docker://khanlab/connectome-workbench:latest
+docker://khanlab/prepdwi:latest

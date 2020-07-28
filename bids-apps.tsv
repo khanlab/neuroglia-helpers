@@ -65,3 +65,4 @@ surfmorph_dev	docker://khanlab/surfmorph:latest		ShortSkinny
 qsiprep_0.8.0RC3	docker://pennbbl/qsiprep:0.8.0RC3	-w $SLURM_TMPDIR --fs-license-file ${FS_LICENSE_FILE}	Regular
 fmriprep_ciftify_v1.3.2-2.3.3	docker://tigrlab/fmriprep_ciftify:v1.3.2-2.3.3		Regular
 dmriprep_0.2.2	docker://nipreps/dmriprep:0.2.2		Regular
+hippocampal_autotop_dev	docker://khanlab/hippocampal_autotop_bids:latest		Short

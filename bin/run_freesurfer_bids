@@ -1,0 +1,39 @@
+#!/bin/bash
+
+
+
+if [ "$#" -lt 3 ]
+then 
+ echo "Freesurfer 7.1.0 *mini* bids-app  - runs recon-all -parallel -hires -threads 8 -all ... "
+ echo ""
+ echo "Must use this command with regularBatch, regularSubmit, or in a regularInteractive job"
+ echo " as it uses the SLURM_TMPDIR local scratch to run. "
+ echo ""
+ echo "Usage: $0 <subject> <bids_dir> <output_dir> <optional recon-all args>"
+ echo ""
+ echo " e.g.: regularBatch run_fs subjects.txt -a "/path/to/bids_dir /path/to/output_dir" -j 8core32gb12h "
+ echo " where each line of subjects.txt contains e.g. sub-001"
+ exit 1
+fi
+
+subject=$1
+bids_dir=$2
+out_dir=$3
+
+shift 3
+optargs=$@
+
+in_imgs=`ls $bids_dir/${subject}/*/anat/*T1w.nii.gz $bids_dir/${subject}/anat/*T1w.nii.gz`
+
+in_cmd=""
+for img in $in_imgs
+do
+ in_cmd="$in_cmd -i $img"
+done
+    
+
+module load freesurfer/7.1.0
+mkdir -p $out_dir
+#run it in tempdir, then copy it over when finished
+recon-all -threads 8 -sd $SLURM_TMPDIR  -subjid $subject -parallel -hires -all $in_cmd $optargs
+cp -Rv $SLURM_TMPDIR/${subject} $out_dir

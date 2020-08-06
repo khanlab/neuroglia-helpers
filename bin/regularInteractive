@@ -13,11 +13,13 @@ salloc_opts=""
 acct=$CC_COMPUTE_ALLOC
 srun=""
 
-while getopts "n:t:m:hYgj" flag
+while getopts "n:t:m:A:hYgj" flag
 do
 	case $flag in
+		A) echo "setting account=$OPTARG"
+	    acct=${OPTARG};;
 		Y) echo "enabling x11 forwarding"
-             salloc_opts="$salloc_opts --x11";;
+            salloc_opts="$salloc_opts --x11";;
 		g) echo "enabling 1 gpu, with $CC_GPU_ALLOC"
             salloc_opts="$salloc_opts --gres=gpu:t4:1"
             acct=$CC_GPU_ALLOC;;

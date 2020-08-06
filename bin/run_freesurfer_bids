@@ -11,7 +11,7 @@ then
  echo ""
  echo "Usage: $0 <subject> <bids_dir> <output_dir> <optional recon-all args>"
  echo ""
- echo " e.g.: regularBatch run_fs subjects.txt -a "/path/to/bids_dir /path/to/output_dir" -j 8core32gb12h "
+ echo " e.g.: regularBatch $0 subjects.txt -a "/path/to/bids_dir /path/to/output_dir" -j 8core32gb12h "
  echo " where each line of subjects.txt contains e.g. sub-001"
  exit 1
 fi

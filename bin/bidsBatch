@@ -210,7 +210,7 @@ then
 	echo "Usage for bids app:" >&2
 	if [ -e $singularity_image ]
 	then
-		singularity run $singularity_image
+		singularity run -e $singularity_image
 	fi
 
 	

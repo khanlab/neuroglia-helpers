@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ ! -n "$SNAKEMAKE_VENV_DIR" ]
+then
+    echo "snakemake venv not set-up"
+    exit 0
+fi
+
+echo "fetching all templateflow templates..."
+source $SNAKEMAKE_VENV_DIR/activate && python -c "import templateflow.api as api; [api.get(template) for template in api.templates()]" && deactivate
+echo "done"

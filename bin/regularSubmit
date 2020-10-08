@@ -53,8 +53,9 @@ cc_account=$CC_COMPUTE_ALLOC
 scriptname=
 output_dir=`realpath $PWD`
 envscript=
+gpu_req=
 
-while getopts "Jj:d:tWnN:A:E:" options; do
+while getopts "Jj:d:tWnN:A:E:g:" options; do
  case $options in
     J ) print_job_templates
 	exit 1;;
@@ -74,6 +75,9 @@ while getopts "Jj:d:tWnN:A:E:" options; do
 	    cc_account=$OPTARG;;
     E ) echo "	Sourcing $OPTARG in each job" >&2
 	envscript=$OPTARG;;
+	g) echo "enabling ${OPTARG} t4 gpus, with allocation $CC_GPU_ALLOC"
+    gpu_req="gpu:t4:${OPTARG}"
+    cc_account=$CC_GPU_ALLOC;;
     * ) usage
 	exit 1;;
  esac
@@ -102,6 +106,11 @@ cp ${NEUROGLIA_DIR}/job-templates/${job_template}.job $job
 echo "#SBATCH --job-name=$scriptname" >> $job
 echo "#SBATCH --account=$cc_account" >> $job
 echo "#SBATCH --output=$job_dir/${scriptname}.%A.out" >> $job
+
+if [ -n "$gpu_req" ]
+then
+    echo "#SBATCH --gres=${gpu_req}" >> $job
+fi
 
 if [ -n "$envscript" ]
 then

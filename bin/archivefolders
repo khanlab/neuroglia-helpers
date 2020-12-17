@@ -36,7 +36,7 @@ then
 fi
 
 
-while getopts "N:a:t:no:m" options; do
+while getopts "N:a:t:o:m:n" options; do
  case $options in
     N ) echo "min_nfiles=$OPTARG"; min_nfiles=$OPTARG;;
     a ) echo "account=$OPTARG"; account=$OPTARG;;

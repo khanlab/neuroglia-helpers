@@ -2,13 +2,11 @@
 
 set -o pipefail
 
-min_avgmb=20
 dry_run=0
 time_per_gb=2 #walltime, minutes per gb
 account=ctb-akhanf
-min_nfiles=100
 maxdepth=0
-job_dir=$SCRATCH/archivejobs
+job_dir=/scratch-deleted-2021-mar-20/$USER/archivejobs
 project_dir=/project/$account/$USER/0_scratch_archives
 use_tar=0
 zip_opts="-@ -y -Z store -r -u"
@@ -91,7 +89,7 @@ do
     tarname=${abspath##*/}
     rootdir=${abspath%/*}
     #remove /scratch/$USER/ from path
-    relscratchdir=${rootdir#/scratch/*/}
+    relscratchdir=${rootdir#/scratch-deleted-2021-mar-20/*/}
     
     out_dir=${project_dir}/${relscratchdir}
    

@@ -1,0 +1,151 @@
+#!/bin/bash
+
+set -o pipefail
+
+min_avgmb=20
+dry_run=0
+time_per_gb=2 #walltime, minutes per gb
+account=ctb-akhanf
+min_nfiles=100
+maxdepth=0
+job_dir=$SCRATCH/archivejobs
+project_dir=/project/$account/$USER/0_scratch_archives
+use_tar=0
+zip_opts="-@ -y -Z store -r -u"
+zip_find_opts="-type d,f,l ! -size 0"
+time_minutes=0
+
+function usage {
+ echo "--------------------------------------------------------------------------------"
+ echo "This tool will take folder(s) in scratch, tar them up and save them project space "
+ echo "submitting a job in each case."
+ echo ""
+ echo "Usage: $0  [-a account] [-t time_per_gb] [-o output_job_dir] [-n] FOLDER(S)"
+ echo "  -a account                 : project/cpu allocation (default = $account)"
+ echo "  -t time_per_gb             : job request time (default = $time_per_gb  [2 minutes per gb])"
+ echo "  -o output_job_dir          : (default = $jobs_dir)"
+ echo "  -p project_dir             : (default = $project_dir)"
+ echo "  -T                         : enable tar (default: zip is recommended)"
+ echo "  -w walltime_minutes        : walltime in minutes (default: 2min per gb, use this option to avoid precomputing size)"
+ echo "  -n                         : dry-run "
+ echo "--------------------------------------------------------------------------------"
+
+
+
+}
+if [ "$#" -lt 1 ]
+then
+    usage
+    exit 1
+fi
+
+
+
+while getopts "a:t:o:np:Tw:" options; do
+ case $options in
+    a ) echo "account=$OPTARG"; account=$OPTARG;;
+    t ) echo "time_per_gb=$OPTARG"; time_per_gb=$OPTARG;;
+    n ) echo "enabling dry-run"; dry_run=1;;
+    o ) echo "job_dir=$OPTARG"; job_dir=$OPTARG;;
+    w ) echo "time_minutes=$OPTARG"; time_minutes=$OPTARG;;
+    p ) echo "project_dir=$OPTARG"; project_dir=$OPTARG;;
+    T ) echo "enabling tar file"; use_tar=1;;
+    * ) usage
+    exit 1;;
+ esac
+done
+
+shift $((OPTIND-1))
+
+
+
+OIFS="$IFS"
+IFS=$'\n'
+
+mkdir -p $job_dir
+
+if [ "$use_tar" == "1" ]
+then
+  extension=tar
+else
+  extension=zip
+fi
+
+
+skip_path=NOSKIPPATH
+for dir in `find $@  -maxdepth ${maxdepth} -type d \( ! -iname \*.ARCHIVED \)`
+do 
+
+
+    abspath=`realpath $dir`
+   
+     #here, check if skip_path is contained in abspath -- if it is, then we skip this (as has been archived already)..
+    if [[ $abspath  == "${skip_path}/"* ]]
+    then
+        #skipping $abspath, already archiving parent folder
+        continue
+    fi
+
+
+    #split off target tarname from rest of path
+    tarname=${abspath##*/}
+    rootdir=${abspath%/*}
+    #remove /scratch/$USER/ from path
+    relscratchdir=${rootdir#/scratch/*/}
+    
+    out_dir=${project_dir}/${relscratchdir}
+   
+    mkdir -p $out_dir
+
+    archivefile=${out_dir}/${tarname}.${extension}
+
+
+if [ "$time_minutes" = "0" ]
+then
+    echo "Calculating size of $dir ... (can be skipped with the option: -w WALLTIME_IN_MINUTES)"
+    nfiles=`find $dir -type f  | wc -l`
+    nbytes=`du -s $dir | awk '{print $1}'`
+    nbytes=${nbytes%\  *}
+    n_gb=`echo "scale=4; $nbytes/1000000" | bc`
+    if [ "$n_gb" = 0 ]
+    then
+       avg_mb=0
+    else
+       avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
+    fi
+
+    time_minutes=`echo "scale=0; ($n_gb*$time_per_gb+0.5)/1" | bc`
+    if [ "$time_minutes" -lt 10 ]
+    then 
+        time_minutes=10 #minimum 10 minutes
+    fi
+fi
+
+    job_file=$job_dir/archive`echo $abspath |  sed 's|[/ ]|_|g'`.job
+    echo "$dir: avg_mb=$avg_mb, nfiles=$nfiles, total_gb=$n_gb -> archiving to $archivefile"
+    
+
+    echo "#!/bin/bash" > $job_file
+    if [ "$use_tar" == "1" ]
+    then
+        echo "tar -C $rootdir -cvf $archivefile $tarname && mv $abspath $abspath.ARCHIVED" >> $job_file
+    else
+        echo "cd $rootdir && find $tarname $zip_find_opts | zip $zip_opts $archivefile && mv $abspath $abspath.ARCHIVED" >> $job_file
+    fi  
+    pushd $job_dir > /dev/null
+    if [ "$dry_run" = 1 ]
+    then
+        echo sbatch --account=$account --time=$time_minutes --cpus-per-task=1 --ntasks=1 --mem=4000mb  $job_file
+        cat $job_file
+    else
+        sbatch --account=$account --time=$time_minutes --cpus-per-task=1 --ntasks=1 --mem=4000mb  $job_file
+        sleep 2 #add a delay
+    fi
+    popd > /dev/null
+
+    skip_path=${abspath}
+
+done
+
+
+

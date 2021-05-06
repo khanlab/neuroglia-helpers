@@ -8,7 +8,7 @@ dry_run=0
 time_per_gb=2 #walltime, minutes per gb
 account=ctb-akhanf
 min_nfiles=100
-maxdepth=2
+maxdepth=1
 job_dir=$SCRATCH/archivejobs
 
 function usage {
@@ -90,10 +90,6 @@ do
        avg_mb=`echo "scale=1; $n_gb*1000/$nfiles" | bc`
     fi
 
-    if (( $(echo "$avg_mb < $min_avgmb" | bc) ))
-    then
-    if  [ "$nfiles" -gt  "$min_nfiles" ]
-    then
 
     time_minutes=`echo "scale=0; ($n_gb*$time_per_gb+0.5)/1" | bc`
     if [ "$time_minutes" -lt 10 ]
@@ -115,15 +111,6 @@ do
         sbatch --account=$account --time=$time_minutes --cpus-per-task=1 --ntasks=1 --mem=4000mb $job_file
     fi
     popd > /dev/null
-
-    else
-        echo "$dir: nfiles=$nfiles less than $min_nfiles -> skipping"
-    fi
-
-    else
-        echo "$dir: avg_mb=$avg_mb greater than $min_avgmb -> skipping"
-        
-    fi    
 
     skip_path=${abspath}
 

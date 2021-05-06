@@ -1,3 +1,7 @@
 docker://khanlab/neuroglia-core:latest
 docker://khanlab/connectome-workbench:latest
 docker://khanlab/prepdwi:latest
+docker://pwighton/freesurfer:7.1.0
+docker://khanlab/autotop_deps:v0.2
+docker://kaczmarj/ants:2.3.4
+docker://yinglilu/nifti2dicom:0.4.20210412

@@ -1,4 +1,5 @@
 name	url	base_options	job_template
+fmriprep_20.2.1	docker://nipreps/fmriprep:20.2.1	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack --output-layout bids	Regular
 fmriprep_20.2.0	docker://poldracklab/fmriprep:20.2.0	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
 fmriprep_20.1.1	docker://poldracklab/fmriprep:20.1.1	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
 fmriprep_20.0.5	docker://poldracklab/fmriprep:20.0.5	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor --notrack	Regular
@@ -24,6 +25,7 @@ mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 320
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
 mriqc_0.10.1	docker://poldracklab/mriqc:0.10.1	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
 mriqc_0.10.0	docker://poldracklab/mriqc:0.10.0	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
+prepdwi_v0.0.13	docker://khanlab/prepdwi:v0.0.13	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.12d	docker://khanlab/prepdwi:v0.0.12d	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h
 prepdwi_v0.0.12d_bedpost	docker://khanlab/prepdwi:v0.0.12d	--n_cpus 8 -w $SLURM_TMPDIR	Regular
 prepdwi_v0.0.12c	docker://khanlab/prepdwi:v0.0.12c	--no-bedpost --n_cpus 4 -w $SLURM_TMPDIR	4core16gb12h

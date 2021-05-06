@@ -11,7 +11,7 @@ then
  echo ""
  echo "Usage: $0 <subject> <bids_dir> <output_dir> <optional recon-all args>"
  echo ""
- echo " e.g.: regularBatch $0 subjects.txt -a "/path/to/bids_dir /path/to/output_dir" -j 8core32gb12h "
+ echo " e.g.: regularBatch $0 subjects.txt -a \"/path/to/bids_dir /path/to/output_dir\" -j 8core32gb12h "
  echo " where each line of subjects.txt contains e.g. sub-001"
  exit 1
 fi
@@ -36,4 +36,11 @@ module load freesurfer/7.1.0
 mkdir -p $out_dir
 #run it in tempdir, then copy it over when finished
 recon-all -threads 8 -sd $SLURM_TMPDIR  -subjid $subject -parallel -hires -all $in_cmd $optargs
-cp -Rv $SLURM_TMPDIR/${subject} $out_dir
+if [ "$?" = "0" ]
+then
+    pushd $SLURM_TMPDIR
+    tar -cvf $out_dir/$subject.tar ${subject} 
+    popd
+else
+    touch $out_dir/$subject.FAILED
+fi

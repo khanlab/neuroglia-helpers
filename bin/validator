@@ -12,4 +12,4 @@ then
 fi
 
 
-singularity run $SINGULARITY_OPTS `shub-cache docker://bids/validator:v1.5.4` $@
+singularity run $SINGULARITY_OPTS `shub-cache docker://bids/validator:v1.5.7` $@

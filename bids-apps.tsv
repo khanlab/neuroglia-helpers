@@ -74,3 +74,4 @@ qsiprep_0.11.6	file:///project/6050199/akhanf/singularity/bids-apps/pennbbl_qsip
 fmriprep_ciftify_v1.3.2-2.3.3	docker://tigrlab/fmriprep_ciftify:v1.3.2-2.3.3		Regular
 dmriprep_0.2.2	docker://nipreps/dmriprep:0.2.2		Regular
 hippunfold_v0.3.0	docker://khanlab/hippunfold:v0.3.0	--cores all	Short
+hippunfold_v0.5.1	docker://khanlab/hippunfold:v0.5.1	--cores all	Short

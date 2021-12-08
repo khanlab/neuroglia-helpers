@@ -66,8 +66,8 @@ freesurfer_v6.0.1-subfields	file:///project/6007967/akhanf/singularity/bids-apps
 prepT2space_v0.0.2b	shub://khanlab/prepT2space:v0.0.2b		Regular
 beast_v0.0.2	docker://khanlab/beast:v0.0.2	--BEAST_PATH ${BEAST_PATH}	ShortSkinny
 despot1_dev	docker://khanlab/despot1:latest		ShortSkinny
-mdt-bids_v0.1	docker://khanlab/mdt-bids:v0.1		ShortFat
-mdt-bids_v0.1_snakedwi	file:///project/6050199/akhanf/singularity/bids-apps/khanlab_mdt-bids_v0.1_patch-snakedwi.sif		ShortFat
+mdt-bids_v0.1	docker://khanlab/mdt-bids:v0.1		Short
+mdt-bids_v0.1_snakedwi	file:///project/6050199/akhanf/singularity/bids-apps/khanlab_mdt-bids_v0.1_patch-snakedwi.sif		Short
 surfmorph_v0.1	docker://khanlab/surfmorph:v0.1		ShortSkinny
 surfmorph_dev	docker://khanlab/surfmorph:latest		ShortSkinny
 qsiprep_0.8.0RC3	docker://pennbbl/qsiprep:0.8.0RC3	-w $SLURM_TMPDIR --fs-license-file ${FS_LICENSE_FILE}	Regular

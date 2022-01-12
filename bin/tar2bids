@@ -14,7 +14,7 @@ fi
 
 
 
-tar2bids_img=`shub-cache docker://khanlab/tar2bids:v0.0.5h`
+tar2bids_img=`shub-cache docker://khanlab/tar2bids:v0.0.6c`
 
 echo "CMD: singularity run $SINGULARITY_OPTS $tar2bids_img $@"
 singularity run $SINGULARITY_OPTS  $tar2bids_img $@

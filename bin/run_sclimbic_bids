@@ -1,0 +1,53 @@
+#!/bin/bash
+
+
+
+if [ "$#" -lt 3 ]
+then 
+ echo "Freesurfer sclimbic  *mini* bids-app  - runs mri_sclimbic_seg ... "
+ echo ""
+ echo "Must use this command with regularBatch, regularSubmit, or in a regularInteractive job"
+ echo " as it uses the SLURM_TMPDIR local scratch to run. "
+ echo ""
+ echo "Usage: $0 <subject> <bids_dir> <output_dir> <optional args>"
+ echo ""
+ echo " e.g.: regularBatch $0 subjects.txt -a \"/path/to/bids_dir /path/to/output_dir\" -j 8core32gb12h "
+ echo " where each line of subjects.txt contains e.g. sub-001"
+ exit 1
+fi
+
+sclimbic_tar=/project/6050199/akhanf/opt/sclimbic/sclimbic-linux-20210725.tar
+
+subject=$1
+bids_dir=$2
+out_dir=$3
+
+if [ -z "$SLURM_TMPDIR" ]; then echo "must run this script on compute node"; exit 1; else echo "SLURM_TMPDIR=$SLURM_TMPDIR"; fi
+
+
+shift 3
+optargs=$@
+
+
+in_T1w=`ls -1 $bids_dir/${subject}/*/anat/*T1w.nii.gz $bids_dir/${subject}/anat/*T1w.nii.gz | head -n 1` #take the first T1w
+
+echo "extracting s/w to tmpdir"
+tar -xvf $sclimbic_tar -C $SLURM_TMPDIR
+echo "initializing"
+export FREESURFER_HOME=$SLURM_TMPDIR/sclimbic
+source $FREESURFER_HOME/setup.sh
+
+
+mkdir -p $out_dir
+
+$FREESURFER_HOME/bin/mri_sclimbic_seg --i $in_T1w --o $out_dir/${subject}_desc-sclimbic_dseg.nii.gz $optargs
+
+
+#if [ "$?" = "0" ]
+#then
+#    pushd $SLURM_TMPDIR
+#    tar -cvf $out_dir/$subject.tar ${subject} 
+#    popd
+#else
+#    touch $out_dir/$subject.FAILED
+#fi

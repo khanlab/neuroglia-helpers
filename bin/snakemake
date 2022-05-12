@@ -1,2 +1,0 @@
-source $SNAKEMAKE_VENV_DIR/activate
-snakemake $@

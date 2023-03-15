@@ -1,10 +1,10 @@
 #!/bin/bash
 
-
+version=7.2.0
 
 if [ "$#" -lt 3 ]
 then 
- echo "Freesurfer 7.1.0 *mini* bids-app  - runs recon-all -parallel -hires -threads 8 -all ... "
+ echo "Freesurfer ${version} *mini* bids-app  - runs recon-all -parallel -hires -threads 8 -all ... "
  echo ""
  echo "Must use this command with regularBatch, regularSubmit, or in a regularInteractive job"
  echo " as it uses the SLURM_TMPDIR local scratch to run. "
@@ -17,8 +17,10 @@ then
 fi
 
 subject=$1
-bids_dir=$2
-out_dir=$3
+bids_dir=`realpath $2`
+out_dir=`realpath $3`
+
+if [ -z "$SLURM_TMPDIR" ]; then echo "must run this script on compute node"; exit 1; else echo "SLURM_TMPDIR=$SLURM_TMPDIR"; fi
 
 shift 3
 optargs=$@
@@ -32,7 +34,7 @@ do
 done
     
 
-module load freesurfer/7.1.0
+module load freesurfer/${version}
 mkdir -p $out_dir
 #run it in tempdir, then copy it over when finished
 recon-all -threads 8 -sd $SLURM_TMPDIR  -subjid $subject -parallel -hires -all $in_cmd $optargs

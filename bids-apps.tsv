@@ -1,4 +1,5 @@
 name	url	base_options	job_template
+fmriprep_23.0.1	docker://nipreps/fmriprep:23.0.1	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --notrack	Regular
 fmriprep_21.0.0	docker://nipreps/fmriprep:21.0.0	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --notrack	Regular
 fmriprep_20.2.6	docker://nipreps/fmriprep:20.2.6	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --notrack --output-layout bids	Regular
 fmriprep_20.2.5	docker://nipreps/fmriprep:20.2.5	--nthreads 8 --n_cpus 8 --mem_mb 32000 --omp-nthreads 8 --use-plugin ${FMRIPREP_MULTIPROC_YAML} -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --notrack --output-layout bids	Regular

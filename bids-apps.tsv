@@ -25,6 +25,7 @@ fmriprep_1.0.13	docker://poldracklab/fmriprep:1.0.13	--nthreads 8 --n_cpus 8 --o
 fmriprep_1.0.7	docker://poldracklab/fmriprep:1.0.7	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
 fmriprep_1.0.6	docker://poldracklab/fmriprep:1.0.6	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
 fmriprep_1.0.4	docker://poldracklab/fmriprep:1.0.4	--nthreads 8 --n_cpus 8 --omp-nthreads 8 --mem_mb 32000 -w ${SLURM_TMPDIR} --fs-license-file ${FS_LICENSE_FILE} --resource-monitor	Regular
+mriqc_23.0.1	docker://nipreps/mriqc:23.0.1	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
 mriqc_0.15.1	docker://poldracklab/mriqc:0.15.1	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
 mriqc_0.14.2	docker://poldracklab/mriqc:0.14.2	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short
 mriqc_0.10.2	docker://poldracklab/mriqc:0.10.2	--no-sub --n_procs 8 --mem_gb 32000 -w ${SLURM_TMPDIR}	Short

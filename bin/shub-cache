@@ -40,8 +40,14 @@ bra=master
 
 #check version of singularity (2 vs 3)
 version=`singularity --version`
-version=${version##*\ }
-version=${version:0:1}
+
+if [ ${version%%\ *} = "apptainer" ]
+then
+  version=3
+else
+  version=${version##*\ }
+  version=${version:0:1}
+fi
 
 hub=${url%%://*}
 if [ "$hub" = "docker" ]

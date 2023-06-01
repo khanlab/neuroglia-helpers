@@ -26,14 +26,27 @@ ident=$3
 
 #first make sure that singularity version is same on both (e.g. cannot have v2 v3 mismatch - since shub-cache names files differently for each)
 version=`singularity --version`
-version=${version##*\ }
-version=${version:0:1}
+
+if [ ${version%%\ *} = "apptainer" ]
+then
+  version=3
+else
+  version=${version##*\ }
+  version=${version:0:1}
+fi
+
 local_v=$version
 
 
 version=`ssh -i $ident $user_host singularity --version`
-version=${version##*\ }
-version=${version:0:1}
+
+if [ ${version%%\ *} = "apptainer" ]
+then
+  version=3
+else
+  version=${version##*\ }
+  version=${version:0:1}
+fi
 remote_v=$version
 
 if [ !  "$local_v" = "$remote_v" ]

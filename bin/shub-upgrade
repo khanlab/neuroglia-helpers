@@ -5,11 +5,11 @@
 #[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
 
 
-if [ ! -n "$SINGULARITY_DIR" ]
-then
-	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
-	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
-fi
+#if [ ! -n "$SINGULARITY_DIR" ]
+#then
+#	echo "SINGULARITY_DIR not set, reverting to default: /project/6007967/akhanf/singularity" >&2
+#	export SINGULARITY_DIR=/project/6007967/akhanf/singularity
+#fi
 
 if [ ! "$#" = 1 ]
 then
@@ -31,8 +31,15 @@ bra=master
 
 #check version of singularity (2 vs 3)
 version=`singularity --version`
-version=${version##*\ }
-version=${version:0:1}
+
+if [ ${version%%\ *} = "apptainer" ]
+then
+  version=3
+else
+  version=${version##*\ }
+  version=${version:0:1}
+fi
+
 
 
 hub=${url%%://*}

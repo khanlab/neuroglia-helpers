@@ -117,6 +117,11 @@ then
 	echo "source $envscript" >> $job
 fi
 
+if [ -n "$depends" ]
+then
+    dependsopt="--dependency=$depends"
+fi
+
 if [ "$ninja" = 1 ]
 then
 echo "echo Ninja-mode - delete job file" >> $job
@@ -138,9 +143,9 @@ then
 
 if [ "$enable_wait" == 1 ]
 then
-message=`sbatch --dependency=$depends -W $job`
+message=`sbatch $dependsopt -W $job`
 else
-message=`sbatch --dependency=$depends $job`
+message=`sbatch $dependsopt $job`
 fi
 
 # Extract job identifier from SLURM's message.
